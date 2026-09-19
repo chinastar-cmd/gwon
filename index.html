@@ -1,0 +1,2847 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>중학교 학부모 공개수업 등록</title>
+    <meta name="description" content="중학교 학부모 공개수업 참석자 정보 등록 및 관리자 전용 1·2·3학년 통합 반별 통계 및 명단 정렬/다운로드 시스템" />
+    <meta property="og:title" content="중학교 학부모 공개수업 등록" />
+    <meta property="og:description" content="중학교 학부모 공개수업 참석자 정보 등록 및 관리자 전용 1·2·3학년 통합 반별 통계 및 명단 정렬/다운로드 시스템" />
+    <meta property="og:type" content="website" />
+    <style>
+      :root {
+        --bg-main: #f2f7f4;
+        --bg-card: #ffffff;
+        --border-color: #d6e5dc;
+        --border-focus: #3e8861;
+        --green-50: #f1f7f3;
+        --green-100: #e2f0e6;
+        --green-150: #d4eadc;
+        --green-200: #bddbc8;
+        --green-300: #93c4a4;
+        --green-500: #418b63;
+        --green-600: #31724f;
+        --green-700: #24583c;
+        --text-main: #1d2d23;
+        --text-muted: #5c7264;
+        --text-sub: #7a9182;
+        --danger: #d94b46;
+        --danger-bg: #fdf2f2;
+        --radius: 12px;
+        --radius-sm: 8px;
+        --shadow: 0 4px 16px rgba(32, 66, 46, 0.06);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", "Segoe UI", sans-serif;
+        background-color: var(--bg-main);
+        color: var(--text-main);
+        line-height: 1.5;
+        min-height: 100vh;
+        padding: 16px;
+      }
+
+      .app-wrapper {
+        max-width: 1100px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      /* Header */
+      header.app-header {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius);
+        padding: 18px 24px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        box-shadow: var(--shadow);
+      }
+
+      .header-title-group h1 {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: var(--green-700);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .header-title-group p {
+        font-size: 0.88rem;
+        color: var(--text-muted);
+        margin-top: 3px;
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      /* Always-visible Admin Entry Button */
+      .btn-admin-access {
+        background: var(--green-50);
+        border: 1.5px solid var(--border-color);
+        color: var(--green-700);
+        padding: 9px 18px;
+        border-radius: var(--radius-sm);
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.15s ease;
+      }
+
+      .btn-admin-access:hover {
+        background: #e2f0e7;
+        border-color: var(--green-300);
+      }
+
+      .btn-admin-access.is-admin {
+        background: var(--green-600);
+        border-color: var(--green-700);
+        color: #ffffff;
+      }
+
+      /* View Panels */
+      .view-panel {
+        display: none;
+      }
+
+      .view-panel.active {
+        display: block;
+      }
+
+      /* 1. Parent Registration View Card */
+      .parent-view-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius);
+        padding: 30px;
+        box-shadow: var(--shadow);
+        max-width: 650px;
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      @media (max-width: 600px) {
+        .parent-view-card {
+          padding: 20px;
+        }
+      }
+
+      .parent-view-header {
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 16px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .parent-view-header h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--green-700);
+      }
+
+      .parent-view-header p {
+        font-size: 0.88rem;
+        color: var(--text-muted);
+        margin-top: 4px;
+      }
+
+      .form-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+      }
+
+      .field-block {
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+      }
+
+      .field-label {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .field-badge {
+        font-size: 0.75rem;
+        color: var(--green-700);
+        background: #e5f3eb;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+
+      .field-hint {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-top: -2px;
+      }
+
+      /* Exactly 3 Grade Chips: 1학년, 2학년, 3학년 */
+      .grade-chip-group {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+
+      .choice-hidden {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .grade-chip-label {
+        background: #f8faf8;
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-sm);
+        padding: 13px 8px;
+        text-align: center;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text-main);
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.15s ease;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .grade-chip-label:hover {
+        background: var(--green-50);
+        border-color: var(--green-300);
+      }
+
+      .choice-hidden:checked + .grade-chip-label {
+        background: var(--green-500);
+        border-color: var(--green-600);
+        color: #ffffff;
+        box-shadow: 0 3px 8px rgba(46, 125, 91, 0.28);
+      }
+
+      /* Class Chip Group (Dynamically 1~8반, 1~10반, 1~9반) */
+      .class-chip-group {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+      }
+
+      @media (max-width: 480px) {
+        .class-chip-group {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+
+      .class-chip-label {
+        background: #f8faf8;
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-sm);
+        padding: 11px 4px;
+        text-align: center;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-main);
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.15s ease;
+        display: block;
+      }
+
+      .class-chip-label:hover {
+        background: var(--green-50);
+        border-color: var(--green-300);
+      }
+
+      .choice-hidden:checked + .class-chip-label {
+        background: var(--green-500);
+        border-color: var(--green-600);
+        color: #ffffff;
+        box-shadow: 0 2px 6px rgba(46, 125, 91, 0.25);
+      }
+
+      /* Text Input */
+      .text-input {
+        width: 100%;
+        padding: 13px 16px;
+        font-size: 1rem;
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-sm);
+        background: #fff;
+        color: var(--text-main);
+        outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      .text-input:focus {
+        border-color: var(--border-focus);
+        box-shadow: 0 0 0 3px rgba(62, 136, 97, 0.16);
+      }
+
+      /* Relation Checkbox Chips */
+      .relation-chip-group {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+
+      .relation-chip-label {
+        background: #f8faf8;
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-sm);
+        padding: 12px 8px;
+        text-align: center;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-main);
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.15s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+
+      .relation-chip-label:hover {
+        background: var(--green-50);
+        border-color: var(--green-300);
+      }
+
+      .relation-chk:checked + .relation-chip-label {
+        background: #e4f3e9;
+        border-color: var(--green-500);
+        color: var(--green-700);
+        font-weight: 700;
+      }
+
+      .relation-chk:checked + .relation-chip-label::after {
+        content: "✓";
+        font-weight: 800;
+        color: var(--green-600);
+      }
+
+      .other-input-wrap {
+        display: none;
+        margin-top: 4px;
+      }
+
+      .other-input-wrap.show {
+        display: block;
+      }
+
+      /* Submit Button */
+      .btn-primary-submit {
+        background: var(--green-600);
+        color: #ffffff;
+        border: none;
+        border-radius: var(--radius-sm);
+        padding: 15px;
+        font-size: 1.05rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 4px 10px rgba(36, 88, 60, 0.25);
+        transition: background 0.15s ease, transform 0.1s ease;
+        margin-top: 6px;
+      }
+
+      .btn-primary-submit:hover {
+        background: var(--green-700);
+      }
+
+      .btn-primary-submit:active {
+        transform: scale(0.99);
+      }
+
+      .alert-bar {
+        padding: 11px 14px;
+        border-radius: var(--radius-sm);
+        font-size: 0.88rem;
+        display: none;
+        font-weight: 500;
+      }
+
+      .alert-bar.show {
+        display: block;
+      }
+
+      .alert-bar.error {
+        background: var(--danger-bg);
+        border: 1px solid #f3c7c7;
+        color: var(--danger);
+      }
+
+      /* Registration Success Result Card */
+      .success-complete-card {
+        display: none;
+        background: #f4faf6;
+        border: 1.5px solid var(--green-300);
+        border-radius: var(--radius);
+        padding: 24px;
+        text-align: center;
+        margin-top: 10px;
+      }
+
+      .success-complete-card.show {
+        display: block;
+      }
+
+      .success-complete-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: var(--green-500);
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 12px;
+      }
+
+      .success-complete-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--green-700);
+        margin-bottom: 6px;
+      }
+
+      .success-complete-desc {
+        font-size: 0.92rem;
+        color: var(--text-main);
+        margin-bottom: 18px;
+        line-height: 1.6;
+      }
+
+      .btn-continue-register {
+        background: var(--green-600);
+        color: #fff;
+        border: none;
+        border-radius: var(--radius-sm);
+        padding: 10px 22px;
+        font-size: 0.92rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .btn-continue-register:hover {
+        background: var(--green-700);
+      }
+
+      /* ==================== ADMIN VIEW STYLES ==================== */
+      .admin-view-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .admin-header-bar {
+        background: #e7f3eb;
+        border: 1.5px solid var(--green-300);
+        border-radius: var(--radius);
+        padding: 16px 20px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .admin-badge-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .admin-tag {
+        background: var(--green-700);
+        color: #fff;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+      }
+
+      .admin-toolbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .btn-admin-act {
+        background: #ffffff;
+        border: 1px solid var(--border-color);
+        color: var(--green-700);
+        padding: 8px 13px;
+        border-radius: var(--radius-sm);
+        font-size: 0.86rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.15s ease;
+      }
+
+      .btn-admin-act:hover {
+        background: var(--green-50);
+        border-color: var(--green-300);
+      }
+
+      .btn-admin-act.btn-gsheet {
+        background: #e8f5e9;
+        border-color: #81c784;
+        color: #1b5e20;
+        font-weight: 700;
+      }
+
+      .btn-admin-act.btn-gsheet:hover {
+        background: #c8e6c9;
+        border-color: #4caf50;
+      }
+
+      .btn-admin-danger {
+        color: var(--danger);
+        border-color: #f1c5c5;
+        background: #fff;
+      }
+
+      .btn-admin-danger:hover {
+        background: var(--danger-bg);
+        border-color: var(--danger);
+      }
+
+      /* Admin Summary Banner (4 Stat Cards with Attendance Rate) */
+      .admin-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+      }
+
+      @media (max-width: 960px) {
+        .admin-summary-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 520px) {
+        .admin-summary-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .admin-stat-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius);
+        padding: 18px 22px;
+        box-shadow: var(--shadow);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .admin-stat-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--green-300);
+      }
+
+      .admin-stat-card.featured::before {
+        background: var(--green-600);
+      }
+
+      .admin-stat-title {
+        font-size: 0.86rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        margin-bottom: 6px;
+      }
+
+      .admin-stat-value {
+        font-size: 2.1rem;
+        font-weight: 800;
+        color: var(--green-700);
+        line-height: 1.1;
+      }
+
+      .admin-stat-unit {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        margin-left: 3px;
+      }
+
+      .admin-stat-desc {
+        font-size: 0.78rem;
+        color: var(--text-sub);
+        margin-top: 5px;
+      }
+
+      .admin-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius);
+        padding: 22px 24px;
+        box-shadow: var(--shadow);
+      }
+
+      .admin-card-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--green-700);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+
+      /* Unified 1·2·3 Grade All-in-One Matrix Table */
+      .matrix-table-wrap {
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-sm);
+        overflow-x: auto;
+      }
+
+      table.unified-matrix-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.88rem;
+        text-align: center;
+      }
+
+      table.unified-matrix-table th {
+        background: var(--green-50);
+        color: var(--green-700);
+        font-weight: 700;
+        padding: 10px 8px;
+        border-bottom: 1.5px solid var(--border-color);
+        white-space: nowrap;
+      }
+
+      table.unified-matrix-table td {
+        padding: 9px 8px;
+        border-bottom: 1px solid #ebf2ed;
+        color: var(--text-main);
+      }
+
+      table.unified-matrix-table tr.grade-header-row th {
+        background: #e6f2eb;
+        color: var(--green-700);
+        text-align: left;
+        padding: 9px 12px;
+        font-size: 0.92rem;
+        border-top: 2px solid var(--border-color);
+      }
+
+      table.unified-matrix-table tr.grade-header-row:first-child th {
+        border-top: none;
+      }
+
+      table.unified-matrix-table tr.total-tr td {
+        background: #f5f9f6;
+        font-weight: 700;
+        color: var(--green-700);
+        border-top: 1.5px solid var(--border-color);
+      }
+
+      .td-nonexistent {
+        background-color: #f8faf8;
+        color: #c7d4cc;
+        font-size: 0.78rem;
+      }
+
+      /* Attendance Rate Badges */
+      .rate-badge {
+        display: inline-block;
+        padding: 2px 7px;
+        border-radius: 9999px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: -0.2px;
+        white-space: nowrap;
+      }
+
+      .rate-badge.high {
+        background: #e2f2e6;
+        color: #1a6332;
+      }
+
+      .rate-badge.mid {
+        background: #eef7f1;
+        color: #2b7044;
+      }
+
+      .rate-badge.low {
+        background: #fdf5e6;
+        color: #9c6500;
+      }
+
+      .rate-badge.zero {
+        background: transparent;
+        color: #a8b8ae;
+        font-weight: 500;
+      }
+
+      .rate-badge.featured {
+        background: #24583c;
+        color: #ffffff;
+        padding: 3px 9px;
+        font-size: 0.84rem;
+      }
+
+      /* Student Capacity Modal Styles */
+      .modal-content.modal-wide {
+        max-width: 720px;
+      }
+
+      /* Grade Class Count Setup Card */
+      .grade-class-setup-card {
+        background: #f4faf6;
+        border: 1px solid #bfe0cc;
+        border-radius: var(--radius-sm);
+        padding: 12px 14px;
+        margin-bottom: 14px;
+      }
+
+      .grade-class-setup-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .grade-class-setup-title {
+        font-size: 0.92rem;
+        font-weight: 700;
+        color: var(--green-700);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .grade-class-setup-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+
+      @media (max-width: 600px) {
+        .grade-class-setup-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .grade-class-input-item {
+        background: #ffffff;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 8px 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .grade-class-input-item label {
+        font-size: 0.86rem;
+        font-weight: 700;
+        color: var(--green-700);
+      }
+
+      .grade-class-stepper {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .btn-stepper {
+        width: 28px;
+        height: 28px;
+        border-radius: 4px;
+        border: 1px solid #c9dec9;
+        background: #eef7f1;
+        color: var(--green-700);
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.15s;
+        user-select: none;
+      }
+
+      .btn-stepper:hover {
+        background: #d8edd9;
+      }
+
+      .btn-stepper:active {
+        background: #c2e2c4;
+      }
+
+      .input-class-count {
+        width: 46px;
+        text-align: center;
+        font-size: 0.95rem;
+        font-weight: 800;
+        color: var(--green-700);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 3px 0;
+        background: #fff;
+        outline: none;
+      }
+
+      .input-class-count:focus {
+        border-color: var(--border-focus);
+      }
+
+      .capacity-batch-bar {
+        background: #edf6f0;
+        border: 1px solid #bfe0cc;
+        border-radius: var(--radius-sm);
+        padding: 10px 14px;
+        margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .capacity-section {
+        margin-bottom: 14px;
+        background: #fbfdfc;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-sm);
+        padding: 12px 14px;
+      }
+
+      .capacity-section-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--green-700);
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .capacity-inputs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
+        gap: 8px;
+      }
+
+      .capacity-input-box {
+        display: flex;
+        align-items: center;
+        background: #fff;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 4px 8px;
+        gap: 6px;
+        transition: border-color 0.15s;
+      }
+
+      .capacity-input-box:focus-within {
+        border-color: var(--border-focus);
+        box-shadow: 0 0 0 2px rgba(62, 136, 97, 0.15);
+      }
+
+      .capacity-input-box label {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--text-main);
+        min-width: 30px;
+      }
+
+      .capacity-input-box input {
+        width: 100%;
+        border: none;
+        background: transparent;
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: var(--green-700);
+        text-align: right;
+        outline: none;
+      }
+
+      .capacity-summary-info {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--green-700);
+        background: #f0f7f2;
+        padding: 10px 14px;
+        border-radius: var(--radius-sm);
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      /* Admin Attendee List Section */
+      .list-filter-bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+
+      .filter-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .admin-select, .admin-search-input {
+        padding: 7px 12px;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-sm);
+        font-size: 0.86rem;
+        color: var(--text-main);
+        background: #fff;
+        outline: none;
+      }
+
+      .admin-select:focus, .admin-search-input:focus {
+        border-color: var(--border-focus);
+      }
+
+      .sort-notice {
+        font-size: 0.8rem;
+        color: var(--green-700);
+        background: var(--green-100);
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .admin-table-wrap {
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-sm);
+        overflow-x: auto;
+        max-height: 430px;
+        overflow-y: auto;
+      }
+
+      table.admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.88rem;
+        text-align: left;
+      }
+
+      table.admin-table th {
+        background: var(--green-50);
+        color: var(--green-700);
+        font-weight: 700;
+        padding: 11px 12px;
+        border-bottom: 1.5px solid var(--border-color);
+        position: sticky;
+        top: 0;
+        z-index: 2;
+      }
+
+      table.admin-table td {
+        padding: 11px 12px;
+        border-bottom: 1px solid #edf2ee;
+        vertical-align: middle;
+      }
+
+      table.admin-table tr:hover {
+        background: #fbfdfc;
+      }
+
+      .badge-rel {
+        display: inline-block;
+        padding: 2px 7px;
+        border-radius: 4px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        background: var(--green-100);
+        color: var(--green-700);
+        margin-right: 4px;
+      }
+
+      .btn-row-del {
+        background: transparent;
+        border: 1px solid #f0cfcf;
+        color: var(--danger);
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.78rem;
+        cursor: pointer;
+      }
+
+      .btn-row-del:hover {
+        background: var(--danger-bg);
+        border-color: var(--danger);
+      }
+
+      /* Modals */
+      .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.45);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 16px;
+      }
+
+      .modal-backdrop.show {
+        display: flex;
+      }
+
+      .modal-content {
+        background: #fff;
+        border-radius: var(--radius);
+        max-width: 440px;
+        width: 100%;
+        padding: 24px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+      }
+
+      .modal-head-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .modal-instruction {
+        font-size: 0.88rem;
+        color: var(--text-muted);
+        margin-bottom: 18px;
+        line-height: 1.5;
+      }
+
+      .modal-btns {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 18px;
+      }
+
+      .btn-modal-back {
+        background: #f0f3f1;
+        border: 1px solid #d4dad6;
+        color: var(--text-main);
+        padding: 8px 16px;
+        border-radius: var(--radius-sm);
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .btn-modal-action {
+        background: var(--green-600);
+        border: none;
+        color: #fff;
+        padding: 8px 18px;
+        border-radius: var(--radius-sm);
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .btn-modal-action.danger {
+        background: var(--danger);
+      }
+
+      /* Google Sheet Info Box */
+      .gsheet-guide-box {
+        background: #f1f8f3;
+        border: 1px solid #b7dfc4;
+        border-radius: var(--radius-sm);
+        padding: 12px 14px;
+        font-size: 0.84rem;
+        color: #24583c;
+        margin-top: 12px;
+        line-height: 1.5;
+      }
+
+      /* Toast */
+      .toast-popup {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        background: #23543b;
+        color: #ffffff;
+        padding: 12px 20px;
+        border-radius: var(--radius-sm);
+        font-size: 0.92rem;
+        font-weight: 600;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+        opacity: 0;
+        transform: translateY(16px);
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 1100;
+        pointer-events: none;
+      }
+
+      .toast-popup.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-wrapper" id="app-wrapper">
+      <!-- Header -->
+      <header class="app-header" id="app-header">
+        <div class="header-title-group">
+          <h1 id="app-title">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green-600)">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            중학교 학부모 공개수업 등록
+          </h1>
+          <p id="app-subtitle">공개수업에 참석해주신 학부모님을 환영합니다. 학생 정보를 입력해주세요.</p>
+        </div>
+        <div class="header-actions">
+          <!-- Always accessible from Main Header -->
+          <button type="button" class="btn-admin-access" id="btn-toggle-admin-mode" title="관리자 페이지">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <span id="admin-mode-text">관리자 페이지</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- ==================== 1. PARENT REGISTRATION VIEW (DEFAULT) ==================== -->
+      <main class="view-panel active" id="view-parent">
+        <div class="parent-view-card">
+          <div class="parent-view-header">
+            <div>
+              <h2>참석자 정보 입력</h2>
+              <p>1~3학년 재학생 학부모님께서는 아래 항목을 차례대로 입력해주세요.</p>
+            </div>
+          </div>
+
+          <form id="parent-attendee-form" class="form-grid" novalidate>
+            <!-- 1. Grade Select (EXACTLY 3 ITEMS: 1학년, 2학년, 3학년) -->
+            <div class="field-block" id="field-grade-wrap">
+              <div class="field-label">
+                <span>1. 학년 선택</span>
+                <span class="field-badge">필수</span>
+              </div>
+              <div class="grade-chip-group" id="grade-chip-group">
+                <label>
+                  <input type="radio" name="studentGrade" value="1" class="choice-hidden" checked />
+                  <div class="grade-chip-label">
+                    <span>1학년</span>
+                  </div>
+                </label>
+                <label>
+                  <input type="radio" name="studentGrade" value="2" class="choice-hidden" />
+                  <div class="grade-chip-label">
+                    <span>2학년</span>
+                  </div>
+                </label>
+                <label>
+                  <input type="radio" name="studentGrade" value="3" class="choice-hidden" />
+                  <div class="grade-chip-label">
+                    <span>3학년</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- 2. Class Select (Dynamic: 1학년=8개반, 2학년=10개반, 3학년=9개반) -->
+            <div class="field-block" id="field-class-wrap">
+              <div class="field-label">
+                <span>2. 반 선택 (<span id="current-grade-class-info">1학년 1~8반</span>)</span>
+                <span class="field-badge">필수</span>
+              </div>
+              <div class="class-chip-group" id="class-chip-container">
+                <!-- Dynamically populated per grade -->
+              </div>
+            </div>
+
+            <!-- 3. Student Name -->
+            <div class="field-block" id="field-name-wrap">
+              <div class="field-label">
+                <label for="student-name-input">3. 학생 이름 등록</label>
+                <span class="field-badge">필수</span>
+              </div>
+              <input
+                type="text"
+                id="student-name-input"
+                name="studentName"
+                class="text-input"
+                placeholder="학생 이름을 입력하세요 (예: 김민준)"
+                autocomplete="off"
+                maxlength="15"
+              />
+            </div>
+
+            <!-- 4. Relationship (부, 모, 기타 - Multi-select allowed) -->
+            <div class="field-block" id="field-rel-wrap">
+              <div class="field-label">
+                <span>4. 학생과의 관계 체크</span>
+                <span class="field-badge" style="background:#eaf3ec; color:var(--green-700)">중복 선택 가능</span>
+              </div>
+              <div class="field-hint">오늘 함께 오신 분들을 모두 선택해주세요. (예: 부모님 동반 시 '부', '모' 모두 체크)</div>
+              <div class="relation-chip-group" id="relation-chip-group">
+                <label>
+                  <input type="checkbox" name="relationType" value="부" class="choice-hidden relation-chk" />
+                  <div class="relation-chip-label">부 (아버지)</div>
+                </label>
+                <label>
+                  <input type="checkbox" name="relationType" value="모" class="choice-hidden relation-chk" />
+                  <div class="relation-chip-label">모 (어머니)</div>
+                </label>
+                <label>
+                  <input type="checkbox" name="relationType" value="기타" id="rel-chk-other" class="choice-hidden relation-chk" />
+                  <div class="relation-chip-label">기타</div>
+                </label>
+              </div>
+
+              <!-- Extra detail for '기타' -->
+              <div class="other-input-wrap" id="other-input-wrap">
+                <input
+                  type="text"
+                  id="other-detail-text"
+                  class="text-input"
+                  placeholder="기타 관계를 적어주세요 (예: 할머니, 할아버지, 이모 등)"
+                  maxlength="20"
+                />
+              </div>
+            </div>
+
+            <!-- Validation Error Alert -->
+            <div class="alert-bar error" id="parent-form-error"></div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn-primary-submit" id="btn-submit-registration">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 6L9 17l-5-5"></path>
+              </svg>
+              참석 등록 완료하기
+            </button>
+          </form>
+
+          <!-- Result card shown after registration -->
+          <div class="success-complete-card" id="success-complete-card">
+            <div class="success-complete-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div class="success-complete-title" id="complete-student-title">참석 등록이 완료되었습니다!</div>
+            <div class="success-complete-desc" id="complete-student-desc">
+              공개수업에 방문해 주셔서 감사합니다.<br />지정된 교실로 입장해 주시기 바랍니다.
+            </div>
+            <button type="button" class="btn-continue-register" id="btn-continue-register">
+              다른 학생 추가 등록하기
+            </button>
+          </div>
+        </div>
+      </main>
+
+      <!-- ==================== 2. ADMIN VIEW (Password 3000 Protected) ==================== -->
+      <section class="view-panel" id="view-admin">
+        <div class="admin-view-wrap">
+          <!-- Admin Header Bar -->
+          <div class="admin-header-bar">
+            <div class="admin-badge-group">
+              <span class="admin-tag">관리자 모드</span>
+              <span style="font-size: 0.95rem; font-weight: 700; color: var(--green-700);">
+                학부모 공개수업 종합 집계 및 명단 관리
+              </span>
+            </div>
+            <div class="admin-toolbar-actions">
+              <button type="button" class="btn-admin-act" id="btn-open-capacity-modal" style="background:#eef7f1; border-color:#8ec9a2; color:#1e5e37; font-weight:700;" title="매년 달라지는 학년별 반 수(학급 수) 및 학생 정원 설정">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                학년별 반 수 및 정원 설정
+              </button>
+              <button type="button" class="btn-admin-act btn-gsheet" id="btn-export-gsheet" title="구글 스프레드시트 호환 파일로 다운로드">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H6v-2h3v2zm0-4H6v-2h3v2zm0-4H6V7h3v2zm4 8h-3v-2h3v2zm0-4h-3v-2h3v2zm0-4h-3V7h3v2zm5 8h-4v-2h4v2zm0-4h-4v-2h4v2zm0-4h-4V7h4v2z"/>
+                </svg>
+                구글시트로 다운로드
+              </button>
+              <button type="button" class="btn-admin-act" id="btn-export-csv" title="참석자 명단 엑셀 CSV 파일 다운로드">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                명단 엑셀 다운로드
+              </button>
+              <button type="button" class="btn-admin-act" id="btn-export-stats-csv" title="반별 통계 및 참석률 표 엑셀 다운로드">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="20" x2="18" y2="10"></line>
+                  <line x1="12" y1="20" x2="12" y2="4"></line>
+                  <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+                통계표 다운로드
+              </button>
+              <button type="button" class="btn-admin-act" id="btn-sample-data" title="중학교 1~3학년 테스트용 샘플 12건 자동 입력">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="12" y1="18" x2="12" y2="12"></line>
+                  <line x1="9" y1="15" x2="15" y2="15"></line>
+                </svg>
+                샘플 데이터
+              </button>
+              <button type="button" class="btn-admin-act btn-admin-danger" id="btn-admin-reset-all" title="관리자 전용: 모든 참석자 데이터 초기화">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="1 4 1 10 7 10"></polyline>
+                  <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                </svg>
+                전체 초기화
+              </button>
+              <button type="button" class="btn-admin-act" id="btn-exit-admin" style="background: var(--green-600); color: #fff; border-color: var(--green-700);">
+                학부모 등록 화면으로
+              </button>
+            </div>
+          </div>
+
+          <!-- Overall Summary Cards with Attendance Rate -->
+          <div class="admin-summary-grid">
+            <div class="admin-stat-card featured" id="admin-card-rate">
+              <div class="admin-stat-title">전체 학생 참석률 (실시간)</div>
+              <div>
+                <span class="admin-stat-value" id="stat-total-rate">0.0</span>
+                <span class="admin-stat-unit">%</span>
+              </div>
+              <div class="admin-stat-desc" id="stat-rate-sub">참석 0명 / 전교 정원 675명</div>
+            </div>
+
+            <div class="admin-stat-card" id="admin-card-unique-students">
+              <div class="admin-stat-title">참석 학생 수 (정원 대비)</div>
+              <div>
+                <span class="admin-stat-value" id="stat-unique-students">0</span>
+                <span class="admin-stat-unit" id="stat-unique-students-unit">/ 675명</span>
+              </div>
+              <div class="admin-stat-desc">중복 제외 참석 학생 가구 수</div>
+            </div>
+
+            <div class="admin-stat-card" id="admin-card-total-attendees">
+              <div class="admin-stat-title">학부모 총 참석 인원</div>
+              <div>
+                <span class="admin-stat-value" id="stat-total-attendees">0</span>
+                <span class="admin-stat-unit">명</span>
+              </div>
+              <div class="admin-stat-desc">부, 모, 기타 동반 방문 학부모 실제 총합계</div>
+            </div>
+
+            <div class="admin-stat-card" id="admin-card-total-records">
+              <div class="admin-stat-title">총 등록 접수 건수</div>
+              <div>
+                <span class="admin-stat-value" id="stat-total-records">0</span>
+                <span class="admin-stat-unit">건</span>
+              </div>
+              <div class="admin-stat-desc">접수 완료된 누적 등록 건수</div>
+            </div>
+          </div>
+
+          <!-- ALL-IN-ONE: 1, 2, 3 Grade Unified Matrix Table on One Screen -->
+          <div class="admin-card">
+            <div class="admin-card-title">
+              <span style="display:flex; align-items:center; gap:8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--green-600)">
+                  <line x1="18" y1="20" x2="18" y2="10"></line>
+                  <line x1="12" y1="20" x2="12" y2="4"></line>
+                  <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+                1·2·3학년 전 학년 반별 참석 통계 및 참석률 (한 화면 통합)
+              </span>
+              <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <span style="font-size: 0.82rem; font-weight: 600; color: var(--green-700); background:#eef7f1; padding:3px 8px; border-radius:4px;">
+                  전교 총 <span id="matrix-total-classes-label">27</span>개 학급 · 정원 <span id="matrix-total-cap-label">675</span>명
+                </span>
+                <button type="button" class="btn-admin-act" id="btn-matrix-edit-cap" style="padding:4px 9px; font-size:0.8rem; background:#fff;">
+                  반 수 / 정원 설정
+                </button>
+              </div>
+            </div>
+
+            <div class="matrix-table-wrap">
+              <table class="unified-matrix-table" id="all-grade-matrix-table">
+                <thead id="all-grade-matrix-thead">
+                  <!-- Dynamically populated to match highest class count (e.g. 1반 ~ N반) -->
+                </thead>
+                <tbody id="all-grade-matrix-tbody">
+                  <!-- Dynamically populated for Grades 1, 2, 3 + Grand Total -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Sorted Attendee Records Table (Grade -> Class -> Student Name Korean alphabetical) -->
+          <div class="admin-card">
+            <div class="list-filter-bar">
+              <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <div style="font-size: 1.05rem; font-weight: 700; color: var(--green-700); display: flex; align-items: center; gap: 8px;">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                  </svg>
+                  학부모 등록 명단 (<span id="filtered-records-count">0</span>명)
+                </div>
+                <div class="sort-notice">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                  </svg>
+                  정렬: 학년 ➜ 반 ➜ 학생이름 가나다순
+                </div>
+              </div>
+
+              <div class="filter-controls">
+                <select id="admin-filter-grade" class="admin-select">
+                  <option value="all">전체 학년</option>
+                  <option value="1">1학년</option>
+                  <option value="2">2학년</option>
+                  <option value="3">3학년</option>
+                </select>
+                <select id="admin-filter-class" class="admin-select">
+                  <option value="all">전체 반</option>
+                </select>
+                <input
+                  type="text"
+                  id="admin-filter-search"
+                  class="admin-search-input"
+                  placeholder="학생 이름 검색..."
+                />
+              </div>
+            </div>
+
+            <div class="admin-table-wrap">
+              <table class="admin-table" id="admin-attendees-table">
+                <thead>
+                  <tr>
+                    <th style="width: 50px;">No</th>
+                    <th>학년 / 반</th>
+                    <th>학생 이름</th>
+                    <th>참석 관계</th>
+                    <th style="text-align: center;">학부모 인원</th>
+                    <th>등록 시간</th>
+                    <th style="text-align: center; width: 65px;">삭제</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-attendees-tbody">
+                  <!-- Rendered with Grade -> Class -> Name alphabetical sort -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 3. MODALS ==================== -->
+      <!-- Password Modal (Always accessible from header) -->
+      <div class="modal-backdrop" id="modal-password">
+        <div class="modal-content">
+          <div class="modal-head-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green-600)">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            관리자 인증
+          </div>
+          <p class="modal-instruction">
+            1·2·3학년 통합 반별 통계 및 명단 확인을 위해 관리자 비밀번호를 입력해주세요.
+          </p>
+          <div class="field-block">
+            <input
+              type="password"
+              id="admin-password-input"
+              class="text-input"
+              placeholder="비밀번호를 입력하세요"
+              autocomplete="current-password"
+              maxlength="15"
+            />
+          </div>
+          <div class="alert-bar error" id="admin-password-error" style="margin-top: 10px;"></div>
+          <div class="modal-btns">
+            <button type="button" class="btn-modal-back" id="btn-cancel-pwd">취소</button>
+            <button type="button" class="btn-modal-action" id="btn-confirm-pwd">확인</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Student Capacity (정원) & Grade Class Counts Configuration Modal -->
+      <div class="modal-backdrop" id="modal-capacity">
+        <div class="modal-content modal-wide">
+          <div class="modal-head-title" style="color: var(--green-700);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            각 학년별 학급 수(반 수) 및 학생 정원 설정
+          </div>
+          <p class="modal-instruction" style="margin-bottom: 12px;">
+            매년 학년마다 달라지는 반 수(학급 수)와 각 반의 학생 정원(재적 인원)을 설정해주세요. 설정 내용은 학부모 등록 화면과 실시간 통계 표에 즉시 동기화됩니다.
+          </p>
+
+          <!-- Step 1: Grade Class Count Configuration -->
+          <div class="grade-class-setup-card">
+            <div class="grade-class-setup-header">
+              <span class="grade-class-setup-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                  <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                1단계: 학년별 학급(반) 수 설정
+              </span>
+              <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">
+                (최소 1반 ~ 최대 20반)
+              </span>
+            </div>
+            <div class="grade-class-setup-grid">
+              <!-- Grade 1 count -->
+              <div class="grade-class-input-item">
+                <label for="class-count-grade-1">1학년</label>
+                <div class="grade-class-stepper">
+                  <button type="button" class="btn-stepper" data-action="dec" data-grade="1" aria-label="1학년 반 수 감소">-</button>
+                  <input type="number" id="class-count-grade-1" class="input-class-count" min="1" max="20" value="8" />
+                  <span style="font-size: 0.84rem; font-weight: 700; color: var(--text-main);">반</span>
+                  <button type="button" class="btn-stepper" data-action="inc" data-grade="1" aria-label="1학년 반 수 증가">+</button>
+                </div>
+              </div>
+              <!-- Grade 2 count -->
+              <div class="grade-class-input-item">
+                <label for="class-count-grade-2">2학년</label>
+                <div class="grade-class-stepper">
+                  <button type="button" class="btn-stepper" data-action="dec" data-grade="2" aria-label="2학년 반 수 감소">-</button>
+                  <input type="number" id="class-count-grade-2" class="input-class-count" min="1" max="20" value="10" />
+                  <span style="font-size: 0.84rem; font-weight: 700; color: var(--text-main);">반</span>
+                  <button type="button" class="btn-stepper" data-action="inc" data-grade="2" aria-label="2학년 반 수 증가">+</button>
+                </div>
+              </div>
+              <!-- Grade 3 count -->
+              <div class="grade-class-input-item">
+                <label for="class-count-grade-3">3학년</label>
+                <div class="grade-class-stepper">
+                  <button type="button" class="btn-stepper" data-action="dec" data-grade="3" aria-label="3학년 반 수 감소">-</button>
+                  <input type="number" id="class-count-grade-3" class="input-class-count" min="1" max="20" value="9" />
+                  <span style="font-size: 0.84rem; font-weight: 700; color: var(--text-main);">반</span>
+                  <button type="button" class="btn-stepper" data-action="inc" data-grade="3" aria-label="3학년 반 수 증가">+</button>
+                </div>
+              </div>
+            </div>
+            <div style="font-size: 0.78rem; color: #497a5c; margin-top: 8px;">
+              💡 학년별 반 수를 변경하면 아래 2단계 정원 입력 칸과 학부모 신청 화면의 반 선택 칩이 실시간으로 늘어나거나 줄어듭니다.
+            </div>
+          </div>
+
+          <!-- Step 2: Capacity Batch Apply Bar -->
+          <div class="capacity-batch-bar">
+            <div style="font-size: 0.86rem; font-weight: 700; color: var(--green-700);">
+              ⚡ 전체 반 동일 정원 일괄 적용:
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <input type="number" id="batch-capacity-input" class="text-input" style="width: 70px; padding: 5px 8px; text-align: center;" value="25" min="1" max="60" />
+              <span style="font-size: 0.86rem; font-weight: 600;">명</span>
+              <button type="button" class="btn-modal-action" id="btn-batch-apply-capacity" style="padding: 6px 12px; font-size: 0.84rem; background: var(--green-600);">
+                모든 반에 적용
+              </button>
+            </div>
+          </div>
+
+          <!-- Grade 1 Grid -->
+          <div class="capacity-section">
+            <div class="capacity-section-title">
+              <span id="cap-section-title-grade-1">1학년 (1~8반)</span>
+              <span style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted);" id="cap-sum-grade-1">총 200명</span>
+            </div>
+            <div class="capacity-inputs-grid" id="capacity-grid-grade-1"></div>
+          </div>
+
+          <!-- Grade 2 Grid -->
+          <div class="capacity-section">
+            <div class="capacity-section-title">
+              <span id="cap-section-title-grade-2">2학년 (1~10반)</span>
+              <span style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted);" id="cap-sum-grade-2">총 250명</span>
+            </div>
+            <div class="capacity-inputs-grid" id="capacity-grid-grade-2"></div>
+          </div>
+
+          <!-- Grade 3 Grid -->
+          <div class="capacity-section">
+            <div class="capacity-section-title">
+              <span id="cap-section-title-grade-3">3학년 (1~9반)</span>
+              <span style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted);" id="cap-sum-grade-3">총 225명</span>
+            </div>
+            <div class="capacity-inputs-grid" id="capacity-grid-grade-3"></div>
+          </div>
+
+          <!-- Total Summary Info -->
+          <div class="capacity-summary-info">
+            <span>총 <strong id="cap-sum-classes">27</strong>개 학급</span>
+            <span style="font-size: 0.92rem;">설정된 전교 총 학생 정원: <strong id="cap-sum-total" style="color:var(--green-700); font-size: 1.05rem;">675</strong>명</span>
+          </div>
+
+          <div class="modal-btns">
+            <button type="button" class="btn-modal-back" id="btn-cancel-capacity">취소</button>
+            <button type="button" class="btn-modal-action" id="btn-save-capacity" style="background: var(--green-600);">
+              설정 저장 및 통계 반영
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confirmation Modal (For Reset All) -->
+      <div class="modal-backdrop" id="modal-reset-confirm">
+        <div class="modal-content">
+          <div class="modal-head-title" style="color: var(--danger);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            전체 데이터 초기화
+          </div>
+          <p class="modal-instruction">
+            등록된 모든 참석자 정보와 1·2·3학년 전체 집계 데이터가 영구적으로 삭제됩니다.<br />
+            정말 초기화를 진행하시겠습니까?
+          </p>
+          <div class="modal-btns">
+            <button type="button" class="btn-modal-back" id="btn-cancel-reset">취소</button>
+            <button type="button" class="btn-modal-action danger" id="btn-do-reset">전체 삭제</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Google Sheets Download Guide Modal -->
+      <div class="modal-backdrop" id="modal-gsheet-guide">
+        <div class="modal-content">
+          <div class="modal-head-title" style="color: #1b5e20;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H6v-2h3v2zm0-4H6v-2h3v2zm0-4H6V7h3v2zm4 8h-3v-2h3v2zm0-4h-3v-2h3v2zm0-4h-3V7h3v2zm5 8h-4v-2h4v2zm0-4h-4v-2h4v2zm0-4h-4V7h4v2z"/>
+            </svg>
+            구글 스프레드시트 다운로드
+          </div>
+          <p class="modal-instruction">
+            학년, 반, 학생이름 가나다순으로 정렬된 데이터가 구글 스프레드시트에서 한글 깨짐 없이 바로 열리는 UTF-8 CSV 파일로 다운로드됩니다.
+          </p>
+          <div class="gsheet-guide-box">
+            <strong>💡 구글 스프레드시트에서 여는 방법:</strong><br />
+            1. 다운로드된 파일을 확인합니다.<br />
+            2. Google Drive 또는 스프레드시트(sheets.new) 접속<br />
+            3. [파일] ➜ [가져오기] ➜ [업로드]에서 다운로드된 파일을 선택하면 표 형식으로 즉시 열립니다.
+          </div>
+          <div class="modal-btns">
+            <button type="button" class="btn-modal-back" id="btn-close-gsheet-modal">닫기</button>
+            <button type="button" class="btn-modal-action" id="btn-confirm-gsheet-download" style="background:#2e7d32;">
+              지금 파일 다운로드
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast Element -->
+      <div class="toast-popup" id="toast-popup"></div>
+    </div>
+
+    <!-- Application Script (Pure Vanilla JS, Responsive, Full LocalStorage) -->
+    <script>
+      (function () {
+        'use strict';
+
+        // Constants: Middle school grade class counts
+        // 1학년 = 8개반, 2학년 = 10개반, 3학년 = 9개반 (관리자 페이지에서 매년 학년별로 동적 변경 가능)
+        const DEFAULT_CLASS_COUNTS = {
+          1: 8,
+          2: 10,
+          3: 9
+        };
+
+        const GRADE_CONFIG = {
+          1: { name: '1학년', maxClass: 8 },
+          2: { name: '2학년', maxClass: 10 },
+          3: { name: '3학년', maxClass: 9 }
+        };
+
+        const STORAGE_KEY = 'ms_open_class_attendees_v2';
+        const CAPACITY_STORAGE_KEY = 'ms_open_class_capacities_v2';
+        const CLASS_COUNT_STORAGE_KEY = 'ms_open_class_counts_v2';
+        const ADMIN_PASSWORD = '3000';
+
+        // Default Student Capacities (Middle school 1~3 grades)
+        const DEFAULT_CAPACITIES = {
+          1: { 1: 25, 2: 25, 3: 25, 4: 25, 5: 25, 6: 25, 7: 25, 8: 25 },
+          2: { 1: 25, 2: 25, 3: 25, 4: 25, 5: 25, 6: 25, 7: 25, 8: 25, 9: 25, 10: 25 },
+          3: { 1: 25, 2: 25, 3: 25, 4: 25, 5: 25, 6: 25, 7: 25, 8: 25, 9: 25 }
+        };
+
+        let attendees = [];
+        let gradeClassCounts = { ...DEFAULT_CLASS_COUNTS };
+        let classCapacities = JSON.parse(JSON.stringify(DEFAULT_CAPACITIES));
+        let selectedGradeInForm = 1;
+        let selectedClassInForm = 1;
+        let isAdminLoggedIn = false;
+
+        // Parent View Elements
+        const viewParent = document.getElementById('view-parent');
+        const viewAdmin = document.getElementById('view-admin');
+        const btnToggleAdminMode = document.getElementById('btn-toggle-admin-mode');
+        const adminModeText = document.getElementById('admin-mode-text');
+
+        const parentForm = document.getElementById('parent-attendee-form');
+        const classChipContainer = document.getElementById('class-chip-container');
+        const currentGradeClassInfo = document.getElementById('current-grade-class-info');
+        const studentNameInput = document.getElementById('student-name-input');
+        const relChkOther = document.getElementById('rel-chk-other');
+        const otherInputWrap = document.getElementById('other-input-wrap');
+        const otherDetailText = document.getElementById('other-detail-text');
+        const parentFormError = document.getElementById('parent-form-error');
+        const successCompleteCard = document.getElementById('success-complete-card');
+        const completeStudentTitle = document.getElementById('complete-student-title');
+        const completeStudentDesc = document.getElementById('complete-student-desc');
+        const btnContinueRegister = document.getElementById('btn-continue-register');
+
+        // Admin Elements
+        const btnExitAdmin = document.getElementById('btn-exit-admin');
+        const statTotalRate = document.getElementById('stat-total-rate');
+        const statRateSub = document.getElementById('stat-rate-sub');
+        const statTotalAttendees = document.getElementById('stat-total-attendees');
+        const statUniqueStudents = document.getElementById('stat-unique-students');
+        const statUniqueStudentsUnit = document.getElementById('stat-unique-students-unit');
+        const statTotalRecords = document.getElementById('stat-total-records');
+        const matrixTotalClassesLabel = document.getElementById('matrix-total-classes-label');
+        const matrixTotalCapLabel = document.getElementById('matrix-total-cap-label');
+        const btnMatrixEditCap = document.getElementById('btn-matrix-edit-cap');
+        const btnOpenCapacityModal = document.getElementById('btn-open-capacity-modal');
+        const allGradeMatrixThead = document.getElementById('all-grade-matrix-thead');
+        const allGradeMatrixTbody = document.getElementById('all-grade-matrix-tbody');
+        const adminAttendeesTbody = document.getElementById('admin-attendees-tbody');
+        const filteredRecordsCount = document.getElementById('filtered-records-count');
+        const adminFilterGrade = document.getElementById('admin-filter-grade');
+        const adminFilterClass = document.getElementById('admin-filter-class');
+        const adminFilterSearch = document.getElementById('admin-filter-search');
+        const btnExportGsheet = document.getElementById('btn-export-gsheet');
+        const btnExportCsv = document.getElementById('btn-export-csv');
+        const btnExportStatsCsv = document.getElementById('btn-export-stats-csv');
+        const btnSampleData = document.getElementById('btn-sample-data');
+        const btnAdminResetAll = document.getElementById('btn-admin-reset-all');
+
+        // Modals
+        const modalPassword = document.getElementById('modal-password');
+        const adminPasswordInput = document.getElementById('admin-password-input');
+        const adminPasswordError = document.getElementById('admin-password-error');
+        const btnCancelPwd = document.getElementById('btn-cancel-pwd');
+        const btnConfirmPwd = document.getElementById('btn-confirm-pwd');
+
+        const modalCapacity = document.getElementById('modal-capacity');
+        const batchCapacityInput = document.getElementById('batch-capacity-input');
+        const btnBatchApplyCapacity = document.getElementById('btn-batch-apply-capacity');
+        const classCountGrade1 = document.getElementById('class-count-grade-1');
+        const classCountGrade2 = document.getElementById('class-count-grade-2');
+        const classCountGrade3 = document.getElementById('class-count-grade-3');
+        const capSectionTitleGrade1 = document.getElementById('cap-section-title-grade-1');
+        const capSectionTitleGrade2 = document.getElementById('cap-section-title-grade-2');
+        const capSectionTitleGrade3 = document.getElementById('cap-section-title-grade-3');
+        const capSumClasses = document.getElementById('cap-sum-classes');
+        const capacityGridGrade1 = document.getElementById('capacity-grid-grade-1');
+        const capacityGridGrade2 = document.getElementById('capacity-grid-grade-2');
+        const capacityGridGrade3 = document.getElementById('capacity-grid-grade-3');
+        const capSumGrade1 = document.getElementById('cap-sum-grade-1');
+        const capSumGrade2 = document.getElementById('cap-sum-grade-2');
+        const capSumGrade3 = document.getElementById('cap-sum-grade-3');
+        const capSumTotal = document.getElementById('cap-sum-total');
+        const btnCancelCapacity = document.getElementById('btn-cancel-capacity');
+        const btnSaveCapacity = document.getElementById('btn-save-capacity');
+
+        const modalResetConfirm = document.getElementById('modal-reset-confirm');
+        const btnCancelReset = document.getElementById('btn-cancel-reset');
+        const btnDoReset = document.getElementById('btn-do-reset');
+
+        const modalGsheetGuide = document.getElementById('modal-gsheet-guide');
+        const btnCloseGsheetModal = document.getElementById('btn-close-gsheet-modal');
+        const btnConfirmGsheetDownload = document.getElementById('btn-confirm-gsheet-download');
+
+        // Toast
+        const toastPopup = document.getElementById('toast-popup');
+
+        function showToast(msg) {
+          toastPopup.textContent = msg;
+          toastPopup.classList.add('show');
+          setTimeout(function () {
+            toastPopup.classList.remove('show');
+          }, 2400);
+        }
+
+        // --- Data Persistence ---
+        function loadData() {
+          try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (Array.isArray(parsed)) {
+                // Strictly keep 1, 2, 3 grade records
+                attendees = parsed.filter(function (item) {
+                  return item.grade >= 1 && item.grade <= 3;
+                });
+              } else {
+                attendees = [];
+              }
+            } else {
+              attendees = [];
+            }
+          } catch (e) {
+            console.error('Failed to load localStorage', e);
+            attendees = [];
+          }
+        }
+
+        function saveData() {
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(attendees));
+          } catch (e) {
+            console.error('Failed to save to localStorage', e);
+          }
+        }
+
+        // --- Grade Class Counts Persistence & Sync ---
+        function loadClassCounts() {
+          try {
+            const raw = localStorage.getItem(CLASS_COUNT_STORAGE_KEY);
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              for (let g = 1; g <= 3; g++) {
+                const val = parseInt(parsed[g], 10);
+                gradeClassCounts[g] = (val && val >= 1 && val <= 20) ? val : DEFAULT_CLASS_COUNTS[g];
+              }
+            } else {
+              gradeClassCounts = { ...DEFAULT_CLASS_COUNTS };
+            }
+          } catch (e) {
+            gradeClassCounts = { ...DEFAULT_CLASS_COUNTS };
+          }
+          syncGradeConfig();
+        }
+
+        function saveClassCounts() {
+          try {
+            localStorage.setItem(CLASS_COUNT_STORAGE_KEY, JSON.stringify(gradeClassCounts));
+          } catch (e) {
+            console.error('Failed to save class counts', e);
+          }
+          syncGradeConfig();
+        }
+
+        function syncGradeConfig() {
+          for (let g = 1; g <= 3; g++) {
+            if (GRADE_CONFIG[g]) {
+              GRADE_CONFIG[g].maxClass = gradeClassCounts[g];
+            }
+          }
+        }
+
+        function getTotalClassCount() {
+          return (GRADE_CONFIG[1].maxClass || 0) + (GRADE_CONFIG[2].maxClass || 0) + (GRADE_CONFIG[3].maxClass || 0);
+        }
+
+        function getMaxClassAcrossGrades() {
+          return Math.max(GRADE_CONFIG[1].maxClass, GRADE_CONFIG[2].maxClass, GRADE_CONFIG[3].maxClass);
+        }
+
+        // --- Student Capacities Persistence & Calculations ---
+        function loadCapacities() {
+          try {
+            const raw = localStorage.getItem(CAPACITY_STORAGE_KEY);
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              for (let g = 1; g <= 3; g++) {
+                if (!parsed[g]) parsed[g] = {};
+                const maxC = GRADE_CONFIG[g].maxClass;
+                for (let c = 1; c <= maxC; c++) {
+                  const n = parseInt(parsed[g][c], 10);
+                  parsed[g][c] = (n && n > 0) ? n : (DEFAULT_CAPACITIES[g] && DEFAULT_CAPACITIES[g][c]) || 25;
+                }
+              }
+              classCapacities = parsed;
+            } else {
+              classCapacities = JSON.parse(JSON.stringify(DEFAULT_CAPACITIES));
+              for (let g = 1; g <= 3; g++) {
+                if (!classCapacities[g]) classCapacities[g] = {};
+                const maxC = GRADE_CONFIG[g].maxClass;
+                for (let c = 1; c <= maxC; c++) {
+                  if (!classCapacities[g][c]) classCapacities[g][c] = 25;
+                }
+              }
+            }
+          } catch (e) {
+            classCapacities = JSON.parse(JSON.stringify(DEFAULT_CAPACITIES));
+          }
+        }
+
+        function saveCapacities() {
+          try {
+            localStorage.setItem(CAPACITY_STORAGE_KEY, JSON.stringify(classCapacities));
+          } catch (e) {
+            console.error('Failed to save capacities', e);
+          }
+        }
+
+        function getTotalCapacity() {
+          let sum = 0;
+          for (let g = 1; g <= 3; g++) {
+            for (let c = 1; c <= GRADE_CONFIG[g].maxClass; c++) {
+              sum += (classCapacities[g] && classCapacities[g][c]) || 25;
+            }
+          }
+          return sum;
+        }
+
+        function getGradeCapacity(g) {
+          let sum = 0;
+          const maxC = (GRADE_CONFIG[g] && GRADE_CONFIG[g].maxClass) || 0;
+          for (let c = 1; c <= maxC; c++) {
+            sum += (classCapacities[g] && classCapacities[g][c]) || 25;
+          }
+          return sum;
+        }
+
+        // --- 1. Dynamic Class Chips Rendering per Grade (Parent Form) ---
+        function updateClassChipsForGrade(grade) {
+          const config = GRADE_CONFIG[grade] || GRADE_CONFIG[1];
+          currentGradeClassInfo.textContent = `${config.name} 1~${config.maxClass}반`;
+
+          if (selectedClassInForm > config.maxClass) {
+            selectedClassInForm = 1;
+          }
+
+          classChipContainer.innerHTML = '';
+          for (let c = 1; c <= config.maxClass; c++) {
+            const label = document.createElement('label');
+            const isChecked = c === selectedClassInForm;
+
+            label.innerHTML = `
+              <input type="radio" name="studentClass" value="${c}" class="choice-hidden" ${isChecked ? 'checked' : ''} />
+              <div class="class-chip-label">${c}반</div>
+            `;
+
+            const radio = label.querySelector('input');
+            radio.addEventListener('change', function () {
+              if (this.checked) {
+                selectedClassInForm = parseInt(this.value, 10);
+              }
+            });
+
+            classChipContainer.appendChild(label);
+          }
+        }
+
+        const gradeRadios = document.querySelectorAll('input[name="studentGrade"]');
+        gradeRadios.forEach(function (radio) {
+          radio.addEventListener('change', function () {
+            if (this.checked) {
+              selectedGradeInForm = parseInt(this.value, 10);
+              updateClassChipsForGrade(selectedGradeInForm);
+            }
+          });
+        });
+
+        relChkOther.addEventListener('change', function () {
+          if (this.checked) {
+            otherInputWrap.classList.add('show');
+            otherDetailText.focus();
+          } else {
+            otherInputWrap.classList.remove('show');
+            otherDetailText.value = '';
+          }
+        });
+
+        // --- 2. Registration Form Submission ---
+        parentForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          parentFormError.classList.remove('show');
+
+          const checkedGradeRadio = document.querySelector('input[name="studentGrade"]:checked');
+          const checkedClassRadio = document.querySelector('input[name="studentClass"]:checked');
+          const studentName = studentNameInput.value.trim();
+          const checkedRelations = document.querySelectorAll('input[name="relationType"]:checked');
+
+          if (!checkedGradeRadio) {
+            showFormError('학년을 선택해주세요.');
+            return;
+          }
+          if (!checkedClassRadio) {
+            showFormError('반을 선택해주세요.');
+            return;
+          }
+          if (!studentName) {
+            showFormError('학생 이름을 입력해주세요.');
+            studentNameInput.focus();
+            return;
+          }
+          if (checkedRelations.length === 0) {
+            showFormError('학생과의 관계(부, 모, 기타)를 하나 이상 체크해주세요.');
+            return;
+          }
+
+          const grade = parseInt(checkedGradeRadio.value, 10);
+          const cls = parseInt(checkedClassRadio.value, 10);
+          const maxClass = GRADE_CONFIG[grade].maxClass;
+
+          if (cls < 1 || cls > maxClass) {
+            showFormError(`${grade}학년은 1반부터 ${maxClass}반까지만 선택 가능합니다.`);
+            return;
+          }
+
+          const relations = [];
+          checkedRelations.forEach(function (cb) {
+            if (cb.value === '기타') {
+              const detail = otherDetailText.value.trim();
+              relations.push(detail ? `기타(${detail})` : '기타');
+            } else {
+              relations.push(cb.value);
+            }
+          });
+
+          const now = new Date();
+          const timeStr = `${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+          const existingIdx = attendees.findIndex(function (a) {
+            return a.grade === grade && a.classNum === cls && a.name === studentName;
+          });
+
+          if (existingIdx !== -1) {
+            const current = attendees[existingIdx];
+            const merged = Array.from(new Set([...current.relations, ...relations]));
+            current.relations = merged;
+            current.attendeeCount = merged.length;
+            current.updatedAt = timeStr;
+            saveData();
+            showCompleteCard(grade, cls, studentName, merged, true);
+          } else {
+            const record = {
+              id: 'att_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+              grade: grade,
+              classNum: cls,
+              name: studentName,
+              relations: relations,
+              attendeeCount: relations.length,
+              createdAt: timeStr
+            };
+            attendees.unshift(record);
+            saveData();
+            showCompleteCard(grade, cls, studentName, relations, false);
+          }
+
+          studentNameInput.value = '';
+          checkedRelations.forEach(function (cb) {
+            cb.checked = false;
+          });
+          otherInputWrap.classList.remove('show');
+          otherDetailText.value = '';
+        });
+
+        function showFormError(msg) {
+          parentFormError.textContent = msg;
+          parentFormError.classList.add('show');
+        }
+
+        function showCompleteCard(grade, cls, name, relations, isUpdate) {
+          parentForm.style.display = 'none';
+          completeStudentTitle.textContent = isUpdate ? '참석 정보가 업데이트되었습니다!' : '참석 등록이 완료되었습니다!';
+          completeStudentDesc.innerHTML = `
+            <strong>${grade}학년 ${cls}반 ${escapeHtml(name)}</strong> 학생 학부모님 (${relations.join(', ')})<br />
+            공개수업 방문을 환영합니다.
+          `;
+          successCompleteCard.classList.add('show');
+          showToast(`${name} 학생 학부모님 등록 완료`);
+        }
+
+        btnContinueRegister.addEventListener('click', function () {
+          successCompleteCard.classList.remove('show');
+          parentForm.style.display = 'flex';
+          studentNameInput.focus();
+        });
+
+        // --- 3. Direct Admin Access from Header Button (No need to submit attendee form first) ---
+        btnToggleAdminMode.addEventListener('click', function () {
+          if (isAdminLoggedIn) {
+            switchToParentView();
+          } else {
+            openPasswordModal();
+          }
+        });
+
+        btnExitAdmin.addEventListener('click', function () {
+          switchToParentView();
+        });
+
+        function openPasswordModal() {
+          adminPasswordInput.value = '';
+          adminPasswordError.classList.remove('show');
+          modalPassword.classList.add('show');
+          setTimeout(function () {
+            adminPasswordInput.focus();
+          }, 100);
+        }
+
+        btnCancelPwd.addEventListener('click', function () {
+          modalPassword.classList.remove('show');
+        });
+
+        btnConfirmPwd.addEventListener('click', verifyPasswordAndLogin);
+
+        adminPasswordInput.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') {
+            verifyPasswordAndLogin();
+          }
+        });
+
+        function verifyPasswordAndLogin() {
+          const val = adminPasswordInput.value.trim();
+          if (val === ADMIN_PASSWORD) {
+            modalPassword.classList.remove('show');
+            isAdminLoggedIn = true;
+            switchToAdminView();
+            showToast('관리자 페이지로 접속되었습니다.');
+          } else {
+            adminPasswordError.textContent = '비밀번호가 일치하지 않습니다. 다시 확인해주세요.';
+            adminPasswordError.classList.add('show');
+            adminPasswordInput.focus();
+          }
+        }
+
+        function switchToAdminView() {
+          viewParent.classList.remove('active');
+          viewAdmin.classList.add('active');
+          btnToggleAdminMode.classList.add('is-admin');
+          adminModeText.textContent = '학부모 화면으로';
+          populateAdminClassFilter();
+          renderAdminAll();
+        }
+
+        function switchToParentView() {
+          viewAdmin.classList.remove('active');
+          viewParent.classList.add('active');
+          btnToggleAdminMode.classList.remove('is-admin');
+          adminModeText.textContent = '관리자 페이지';
+        }
+
+        // --- 4. Admin View Renderers ---
+        function renderAdminAll() {
+          renderAdminStats();
+          renderUnifiedMatrixTable();
+          renderAdminAttendeesTable();
+        }
+
+        function renderAdminStats() {
+          const totalAtt = attendees.reduce(function (sum, a) {
+            return sum + (a.attendeeCount || a.relations.length || 1);
+          }, 0);
+
+          const uniqueKeys = new Set();
+          attendees.forEach(function (a) {
+            uniqueKeys.add(`${a.grade}-${a.classNum}-${a.name}`);
+          });
+          const uniqueCount = uniqueKeys.size;
+          const totalCap = getTotalCapacity();
+          const overallRate = totalCap > 0 ? ((uniqueCount / totalCap) * 100) : 0;
+
+          if (statTotalRate) {
+            statTotalRate.textContent = overallRate.toFixed(1);
+          }
+          if (statRateSub) {
+            statRateSub.textContent = `참석 ${uniqueCount.toLocaleString()}명 / 전교 정원 ${totalCap.toLocaleString()}명`;
+          }
+          if (statUniqueStudents) {
+            statUniqueStudents.textContent = uniqueCount.toLocaleString();
+          }
+          if (statUniqueStudentsUnit) {
+            statUniqueStudentsUnit.textContent = `/ ${totalCap.toLocaleString()}명`;
+          }
+          if (statTotalAttendees) {
+            statTotalAttendees.textContent = totalAtt.toLocaleString();
+          }
+          if (statTotalRecords) {
+            statTotalRecords.textContent = attendees.length.toLocaleString();
+          }
+          if (matrixTotalClassesLabel) {
+            matrixTotalClassesLabel.textContent = getTotalClassCount().toLocaleString();
+          }
+          if (matrixTotalCapLabel) {
+            matrixTotalCapLabel.textContent = totalCap.toLocaleString();
+          }
+        }
+
+        function getRateBadgeClass(rate, count) {
+          if (count === 0) return 'zero';
+          if (rate >= 70) return 'high';
+          if (rate >= 30) return 'mid';
+          return 'low';
+        }
+
+        // --- All-in-One 1, 2, 3 Grade Unified Matrix Table with Capacities & Attendance Rates ---
+        function renderUnifiedMatrixTable() {
+          allGradeMatrixTbody.innerHTML = '';
+
+          const maxCols = getMaxClassAcrossGrades();
+
+          // Dynamically build thead with exact number of class columns
+          if (allGradeMatrixThead) {
+            let theadHtml = '<tr><th style="width: 110px;">학년 구분</th>';
+            for (let c = 1; c <= maxCols; c++) {
+              theadHtml += `<th>${c}반</th>`;
+            }
+            theadHtml += '<th style="background:var(--green-100); color:var(--green-700); width:95px;">학년 합계</th></tr>';
+            allGradeMatrixThead.innerHTML = theadHtml;
+          }
+
+          let grandTotalParents = 0;
+          let grandTotalStudents = 0;
+          let grandTotalCap = 0;
+
+          const classColumnParents = Array(maxCols + 1).fill(0);
+          const classColumnStudents = Array(maxCols + 1).fill(0);
+          const classColumnCap = Array(maxCols + 1).fill(0);
+
+          // Iterate Grades 1, 2, 3
+          for (let g = 1; g <= 3; g++) {
+            const config = GRADE_CONFIG[g];
+            const gradeItems = attendees.filter(function (a) { return a.grade === g; });
+
+            let gradeParentsSum = 0;
+            let gradeStudentsSum = 0;
+            let gradeCapSum = 0;
+
+            // Row 1: Grade Parents Count
+            let trParents = `<td><strong>${config.name} (학부모)</strong></td>`;
+            // Row 2: Grade Students / Capacity Count
+            let trStudents = `<td style="color:var(--text-muted); font-size:0.82rem;"><strong>${config.name} (학생 / 정원)</strong></td>`;
+            // Row 3: Grade Attendance Rate (%)
+            let trRate = `<td style="color:var(--green-700); font-size:0.82rem; background:#fafdfb;"><strong>${config.name} (참석률)</strong></td>`;
+
+            for (let c = 1; c <= maxCols; c++) {
+              if (c <= config.maxClass) {
+                const classItems = gradeItems.filter(function (a) { return a.classNum === c; });
+                const pCount = classItems.reduce(function (sum, a) {
+                  return sum + (a.attendeeCount || a.relations.length || 1);
+                }, 0);
+                const sCount = new Set(classItems.map(function (a) { return a.name; })).size;
+                const cap = (classCapacities[g] && classCapacities[g][c]) || 25;
+                const rate = cap > 0 ? ((sCount / cap) * 100) : 0;
+                const badgeClass = getRateBadgeClass(rate, sCount);
+
+                gradeParentsSum += pCount;
+                gradeStudentsSum += sCount;
+                gradeCapSum += cap;
+
+                classColumnParents[c] += pCount;
+                classColumnStudents[c] += sCount;
+                classColumnCap[c] += cap;
+
+                trParents += `<td>${pCount > 0 ? `<strong>${pCount}</strong>` : '<span style="color:#b2c3b8;">0</span>'}</td>`;
+                trStudents += `<td><span style="font-weight:600; color:${sCount > 0 ? 'var(--text-main)' : '#9eb3a5'}">${sCount}</span><span style="font-size:0.75rem; color:#8fa196;">/${cap}</span></td>`;
+                trRate += `<td style="background:#fafdfb;"><span class="rate-badge ${badgeClass}">${rate.toFixed(1)}%</span></td>`;
+              } else {
+                // Class does not exist for this grade (e.g. beyond config.maxClass)
+                trParents += `<td class="td-nonexistent">-</td>`;
+                trStudents += `<td class="td-nonexistent">-</td>`;
+                trRate += `<td class="td-nonexistent">-</td>`;
+              }
+            }
+
+            grandTotalParents += gradeParentsSum;
+            grandTotalStudents += gradeStudentsSum;
+            grandTotalCap += gradeCapSum;
+
+            const gradeOverallRate = gradeCapSum > 0 ? ((gradeStudentsSum / gradeCapSum) * 100) : 0;
+            const gradeBadgeClass = getRateBadgeClass(gradeOverallRate, gradeStudentsSum);
+
+            trParents += `<td style="background:#eaf4ed; font-weight:800; color:var(--green-700);">${gradeParentsSum}명</td>`;
+            trStudents += `<td style="background:#eaf4ed; font-weight:700; color:var(--text-muted); font-size:0.83rem;">${gradeStudentsSum} / ${gradeCapSum}명</td>`;
+            trRate += `<td style="background:#e0efe5; font-weight:800;"><span class="rate-badge ${gradeBadgeClass}">${gradeOverallRate.toFixed(1)}%</span></td>`;
+
+            const tr1 = document.createElement('tr');
+            tr1.innerHTML = trParents;
+
+            const tr2 = document.createElement('tr');
+            tr2.innerHTML = trStudents;
+
+            const tr3 = document.createElement('tr');
+            tr3.style.borderBottom = '2px solid var(--border-color)';
+            tr3.innerHTML = trRate;
+
+            allGradeMatrixTbody.appendChild(tr1);
+            allGradeMatrixTbody.appendChild(tr2);
+            allGradeMatrixTbody.appendChild(tr3);
+          }
+
+          // Grand Total Section (3 Summary Rows)
+          // Row 1: Total Parents
+          const trTotalParents = document.createElement('tr');
+          trTotalParents.className = 'total-tr';
+          let totalParentsHtml = `<td><strong>전교 총 학부모 수</strong></td>`;
+          for (let c = 1; c <= maxCols; c++) {
+            const sum = classColumnParents[c];
+            totalParentsHtml += `<td>${sum > 0 ? `<strong>${sum}</strong>` : '<span style="color:#b2c3b8;">0</span>'}</td>`;
+          }
+          totalParentsHtml += `<td style="background:#dbeef0; font-size:0.95rem; font-weight:800; color:var(--green-700);">${grandTotalParents}명</td>`;
+          trTotalParents.innerHTML = totalParentsHtml;
+
+          // Row 2: Total Students / Capacity
+          const trTotalStudents = document.createElement('tr');
+          trTotalStudents.className = 'total-tr';
+          let totalStudentsHtml = `<td><strong style="color:var(--text-muted); font-size:0.82rem;">전교 학생 출석 / 정원</strong></td>`;
+          for (let c = 1; c <= maxCols; c++) {
+            const sSum = classColumnStudents[c];
+            const capSum = classColumnCap[c];
+            if (capSum > 0) {
+              totalStudentsHtml += `<td><span style="font-weight:700;">${sSum}</span><span style="font-size:0.75rem; color:#8fa196;">/${capSum}</span></td>`;
+            } else {
+              totalStudentsHtml += `<td class="td-nonexistent">-</td>`;
+            }
+          }
+          totalStudentsHtml += `<td style="background:#dbeef0; font-size:0.85rem; font-weight:700; color:var(--green-700);">${grandTotalStudents} / ${grandTotalCap}명</td>`;
+          trTotalStudents.innerHTML = totalStudentsHtml;
+
+          // Row 3: Overall Attendance Rate
+          const trTotalRate = document.createElement('tr');
+          trTotalRate.className = 'total-tr';
+          let totalRateHtml = `<td><strong style="color:var(--green-700);">전교 종합 참석률</strong></td>`;
+          for (let c = 1; c <= maxCols; c++) {
+            const sSum = classColumnStudents[c];
+            const capSum = classColumnCap[c];
+            if (capSum > 0) {
+              const colRate = (sSum / capSum) * 100;
+              const badgeClass = getRateBadgeClass(colRate, sSum);
+              totalRateHtml += `<td><span class="rate-badge ${badgeClass}">${colRate.toFixed(1)}%</span></td>`;
+            } else {
+              totalRateHtml += `<td class="td-nonexistent">-</td>`;
+            }
+          }
+          const grandRate = grandTotalCap > 0 ? ((grandTotalStudents / grandTotalCap) * 100) : 0;
+          totalRateHtml += `<td style="background:#24583c; color:#ffffff; font-size:0.95rem; font-weight:800;"><span class="rate-badge featured">${grandRate.toFixed(1)}%</span></td>`;
+          trTotalRate.innerHTML = totalRateHtml;
+
+          allGradeMatrixTbody.appendChild(trTotalParents);
+          allGradeMatrixTbody.appendChild(trTotalStudents);
+          allGradeMatrixTbody.appendChild(trTotalRate);
+        }
+
+        // --- 5. Sort Function: Grade -> Class -> Student Name Korean Alphabetical ---
+        function getSortedAttendees(list) {
+          return list.slice().sort(function (a, b) {
+            // 1. Grade asc
+            if (a.grade !== b.grade) {
+              return a.grade - b.grade;
+            }
+            // 2. Class asc
+            if (a.classNum !== b.classNum) {
+              return a.classNum - b.classNum;
+            }
+            // 3. Name Korean alphabetical (localeCompare with 'ko')
+            return a.name.localeCompare(b.name, 'ko', { sensitivity: 'base' });
+          });
+        }
+
+        function populateAdminClassFilter() {
+          const currentGrade = adminFilterGrade.value;
+          adminFilterClass.innerHTML = '<option value="all">전체 반</option>';
+
+          let maxC = getMaxClassAcrossGrades();
+          if (currentGrade !== 'all') {
+            maxC = (GRADE_CONFIG[parseInt(currentGrade, 10)] && GRADE_CONFIG[parseInt(currentGrade, 10)].maxClass) || 10;
+          }
+
+          for (let c = 1; c <= maxC; c++) {
+            const opt = document.createElement('option');
+            opt.value = c;
+            opt.textContent = `${c}반`;
+            adminFilterClass.appendChild(opt);
+          }
+        }
+
+        adminFilterGrade.addEventListener('change', function () {
+          populateAdminClassFilter();
+          renderAdminAttendeesTable();
+        });
+        adminFilterClass.addEventListener('change', renderAdminAttendeesTable);
+        adminFilterSearch.addEventListener('input', renderAdminAttendeesTable);
+
+        function renderAdminAttendeesTable() {
+          const gFilter = adminFilterGrade.value;
+          const cFilter = adminFilterClass.value;
+          const q = adminFilterSearch.value.trim().toLowerCase();
+
+          // 1. Filter
+          const filtered = attendees.filter(function (a) {
+            if (gFilter !== 'all' && a.grade !== parseInt(gFilter, 10)) return false;
+            if (cFilter !== 'all' && a.classNum !== parseInt(cFilter, 10)) return false;
+            if (q && !a.name.toLowerCase().includes(q)) return false;
+            return true;
+          });
+
+          // 2. Sort by Grade -> Class -> Name (가나다순)
+          const sorted = getSortedAttendees(filtered);
+
+          filteredRecordsCount.textContent = sorted.length;
+          adminAttendeesTbody.innerHTML = '';
+
+          if (sorted.length === 0) {
+            adminAttendeesTbody.innerHTML = `
+              <tr>
+                <td colspan="7" style="text-align:center; padding:32px; color:var(--text-sub);">
+                  등록된 참석자 내역이 없습니다.
+                </td>
+              </tr>
+            `;
+            return;
+          }
+
+          sorted.forEach(function (item, idx) {
+            const tr = document.createElement('tr');
+            const badges = item.relations.map(function (r) {
+              return `<span class="badge-rel">${escapeHtml(r)}</span>`;
+            }).join('');
+
+            tr.innerHTML = `
+              <td style="color:var(--text-sub);">${idx + 1}</td>
+              <td><strong>${item.grade}학년 ${item.classNum}반</strong></td>
+              <td><strong>${escapeHtml(item.name)}</strong></td>
+              <td>${badges}</td>
+              <td style="text-align:center;"><strong>${item.attendeeCount || item.relations.length}</strong>명</td>
+              <td style="font-size:0.8rem; color:var(--text-muted);">${item.createdAt || '-'}</td>
+              <td style="text-align:center;">
+                <button type="button" class="btn-row-del" data-id="${item.id}">삭제</button>
+              </td>
+            `;
+
+            const delBtn = tr.querySelector('.btn-row-del');
+            delBtn.addEventListener('click', function () {
+              deleteAttendee(item.id, item.name);
+            });
+
+            adminAttendeesTbody.appendChild(tr);
+          });
+        }
+
+        function deleteAttendee(id, name) {
+          if (confirm(`[${name}] 학생의 참석 등록 내역을 삭제하시겠습니까?`)) {
+            attendees = attendees.filter(function (a) { return a.id !== id; });
+            saveData();
+            renderAdminAll();
+            showToast(`${name} 학생 정보가 삭제되었습니다.`);
+          }
+        }
+
+        function escapeHtml(str) {
+          return String(str).replace(/[&<>"']/g, function (m) {
+            return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m];
+          });
+        }
+
+        // --- 6. Google Sheets & CSV Download (Sorted Grade -> Class -> Name) ---
+        function generateSortedCsvContent() {
+          const sortedList = getSortedAttendees(attendees);
+          let csv = '\uFEFF'; // UTF-8 BOM for perfect Korean character rendering in Excel and Google Sheets
+          csv += '번호,학년,반,학생이름,참석관계,학부모인원수,등록시간\n';
+
+          sortedList.forEach(function (a, i) {
+            const relText = a.relations.join(' / ');
+            csv += `${i + 1},${a.grade}학년,${a.classNum}반,"${a.name}","${relText}",${a.attendeeCount || a.relations.length},"${a.createdAt || ''}"\n`;
+          });
+
+          return csv;
+        }
+
+        function triggerDownload(csvContent, filename) {
+          const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+          const link = document.createElement('a');
+          const url = URL.createObjectURL(blob);
+          link.setAttribute('href', url);
+          link.setAttribute('download', filename);
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+
+        // Google Sheets button handler
+        btnExportGsheet.addEventListener('click', function () {
+          if (attendees.length === 0) {
+            alert('다운로드할 참석자 명단이 없습니다.');
+            return;
+          }
+          modalGsheetGuide.classList.add('show');
+        });
+
+        btnCloseGsheetModal.addEventListener('click', function () {
+          modalGsheetGuide.classList.remove('show');
+        });
+
+        btnConfirmGsheetDownload.addEventListener('click', function () {
+          const today = new Date().toISOString().slice(0, 10);
+          const csv = generateSortedCsvContent();
+          triggerDownload(csv, `중학교_학부모공개수업_명단_구글시트용_${today}.csv`);
+          modalGsheetGuide.classList.remove('show');
+          showToast('구글시트용 파일이 다운로드되었습니다.');
+        });
+
+        // Standard CSV button handler
+        btnExportCsv.addEventListener('click', function () {
+          if (attendees.length === 0) {
+            alert('다운로드할 참석자 명단이 없습니다.');
+            return;
+          }
+          const today = new Date().toISOString().slice(0, 10);
+          const csv = generateSortedCsvContent();
+          triggerDownload(csv, `중학교_학부모공개수업_명단_${today}.csv`);
+          showToast('엑셀 명단이 정렬되어 다운로드되었습니다.');
+        });
+
+        // Statistics Table CSV Download handler
+        function generateStatsCsvContent() {
+          let csv = '\uFEFF'; // UTF-8 BOM for Korean Excel compatibility
+          csv += '학년,반,학생 정원(명),참석 학생 수(명),참석율(%),참석 학부모 수(명)\n';
+
+          for (let g = 1; g <= 3; g++) {
+            const config = GRADE_CONFIG[g];
+            const gradeItems = attendees.filter(function (a) { return a.grade === g; });
+            for (let c = 1; c <= config.maxClass; c++) {
+              const classItems = gradeItems.filter(function (a) { return a.classNum === c; });
+              const pCount = classItems.reduce(function (sum, a) {
+                return sum + (a.attendeeCount || a.relations.length || 1);
+              }, 0);
+              const sCount = new Set(classItems.map(function (a) { return a.name; })).size;
+              const cap = (classCapacities[g] && classCapacities[g][c]) || 25;
+              const rate = cap > 0 ? ((sCount / cap) * 100).toFixed(1) : '0.0';
+              csv += `${g}학년,${c}반,${cap},${sCount},${rate}%,${pCount}\n`;
+            }
+          }
+
+          // Total Summary row
+          const totalCap = getTotalCapacity();
+          const totalStudents = new Set(attendees.map(function (a) { return `${a.grade}-${a.classNum}-${a.name}`; })).size;
+          const totalParents = attendees.reduce(function (sum, a) { return sum + (a.attendeeCount || a.relations.length || 1); }, 0);
+          const totalRate = totalCap > 0 ? ((totalStudents / totalCap) * 100).toFixed(1) : '0.0';
+          csv += `전교 총합계,-,${totalCap},${totalStudents},${totalRate}%,${totalParents}\n`;
+
+          return csv;
+        }
+
+        btnExportStatsCsv.addEventListener('click', function () {
+          const today = new Date().toISOString().slice(0, 10);
+          const csv = generateStatsCsvContent();
+          triggerDownload(csv, `중학교_학부모공개수업_반별통계_참석율_${today}.csv`);
+          showToast('반별 통계 및 참석률 표가 다운로드되었습니다.');
+        });
+
+        // --- 7. Grade Class Counts & Student Capacity (정원) Modal Handlers ---
+        let tempClassCounts = { 1: 8, 2: 10, 3: 9 };
+        let tempCapacities = {};
+
+        function openCapacityModal() {
+          tempClassCounts = {
+            1: gradeClassCounts[1] || 8,
+            2: gradeClassCounts[2] || 10,
+            3: gradeClassCounts[3] || 9
+          };
+          tempCapacities = JSON.parse(JSON.stringify(classCapacities));
+
+          if (classCountGrade1) classCountGrade1.value = tempClassCounts[1];
+          if (classCountGrade2) classCountGrade2.value = tempClassCounts[2];
+          if (classCountGrade3) classCountGrade3.value = tempClassCounts[3];
+
+          for (let g = 1; g <= 3; g++) {
+            renderGradeCapacityGrid(g);
+          }
+          updateCapacityModalSums();
+          modalCapacity.classList.add('show');
+        }
+
+        function closeCapacityModal() {
+          modalCapacity.classList.remove('show');
+        }
+
+        function renderGradeCapacityGrid(g) {
+          const grids = {
+            1: capacityGridGrade1,
+            2: capacityGridGrade2,
+            3: capacityGridGrade3
+          };
+          const grid = grids[g];
+          if (!grid) return;
+
+          const titleEl = document.getElementById(`cap-section-title-grade-${g}`);
+          if (titleEl) {
+            titleEl.textContent = `${g}학년 (1~${tempClassCounts[g]}반)`;
+          }
+
+          grid.innerHTML = '';
+          const maxC = tempClassCounts[g];
+          if (!tempCapacities[g]) tempCapacities[g] = {};
+
+          for (let c = 1; c <= maxC; c++) {
+            const currentVal = (tempCapacities[g] && tempCapacities[g][c]) || (classCapacities[g] && classCapacities[g][c]) || 25;
+            tempCapacities[g][c] = currentVal;
+
+            const box = document.createElement('div');
+            box.className = 'capacity-input-box';
+            box.innerHTML = `
+              <label for="cap-input-${g}-${c}">${c}반</label>
+              <input type="number" id="cap-input-${g}-${c}" data-grade="${g}" data-class="${c}" min="1" max="60" value="${currentVal}" />
+              <span style="font-size:0.75rem; color:var(--text-muted);">명</span>
+            `;
+            const inp = box.querySelector('input');
+            inp.addEventListener('input', function () {
+              const val = parseInt(this.value, 10);
+              tempCapacities[g][c] = (val && val > 0) ? val : 0;
+              updateCapacityModalSums();
+            });
+            grid.appendChild(box);
+          }
+        }
+
+        function onClassCountChanged(g, newCount) {
+          newCount = Math.max(1, Math.min(20, parseInt(newCount, 10) || 1));
+          tempClassCounts[g] = newCount;
+          const inputEl = document.getElementById(`class-count-grade-${g}`);
+          if (inputEl) inputEl.value = newCount;
+
+          renderGradeCapacityGrid(g);
+          updateCapacityModalSums();
+        }
+
+        function updateCapacityModalSums() {
+          let grandSum = 0;
+          let totalClasses = 0;
+
+          for (let g = 1; g <= 3; g++) {
+            let gSum = 0;
+            const maxC = tempClassCounts[g];
+            totalClasses += maxC;
+            for (let c = 1; c <= maxC; c++) {
+              const inp = document.getElementById(`cap-input-${g}-${c}`);
+              const val = inp ? (parseInt(inp.value, 10) || 0) : ((tempCapacities[g] && tempCapacities[g][c]) || 25);
+              gSum += val;
+            }
+            grandSum += gSum;
+            const sumEl = document.getElementById(`cap-sum-grade-${g}`);
+            if (sumEl) sumEl.textContent = `총 ${gSum.toLocaleString()}명`;
+          }
+
+          if (capSumClasses) capSumClasses.textContent = totalClasses;
+          if (capSumTotal) capSumTotal.textContent = grandSum.toLocaleString();
+        }
+
+        function saveCapacityModalValues() {
+          // 1. Save grade class counts
+          gradeClassCounts = {
+            1: Math.max(1, Math.min(20, parseInt(tempClassCounts[1], 10) || 8)),
+            2: Math.max(1, Math.min(20, parseInt(tempClassCounts[2], 10) || 10)),
+            3: Math.max(1, Math.min(20, parseInt(tempClassCounts[3], 10) || 9))
+          };
+          saveClassCounts();
+
+          // 2. Save capacities
+          for (let g = 1; g <= 3; g++) {
+            if (!classCapacities[g]) classCapacities[g] = {};
+            const maxC = gradeClassCounts[g];
+            for (let c = 1; c <= maxC; c++) {
+              const inp = document.getElementById(`cap-input-${g}-${c}`);
+              const val = inp ? parseInt(inp.value, 10) : ((tempCapacities[g] && tempCapacities[g][c]) || 25);
+              classCapacities[g][c] = (val && val > 0) ? val : 25;
+            }
+          }
+          saveCapacities();
+
+          closeCapacityModal();
+
+          // 3. Synchronize parent view, admin filter, and statistics
+          updateClassChipsForGrade(selectedGradeInForm);
+          populateAdminClassFilter();
+          renderAdminAll();
+
+          showToast('각 학년별 학급 수와 반별 학생 정원이 성공적으로 저장되었습니다.');
+        }
+
+        function batchApplyCapacity() {
+          const val = parseInt(batchCapacityInput.value, 10);
+          if (!val || val < 1 || val > 100) {
+            alert('올바른 학생 정원 인원수(1~100)를 입력해주세요.');
+            return;
+          }
+
+          for (let g = 1; g <= 3; g++) {
+            const maxC = tempClassCounts[g];
+            for (let c = 1; c <= maxC; c++) {
+              if (!tempCapacities[g]) tempCapacities[g] = {};
+              tempCapacities[g][c] = val;
+              const inp = document.getElementById(`cap-input-${g}-${c}`);
+              if (inp) inp.value = val;
+            }
+          }
+          updateCapacityModalSums();
+          showToast(`모든 반의 정원이 ${val}명으로 일괄 변경되었습니다.`);
+        }
+
+        // Stepper buttons event listener for Step 1
+        modalCapacity.addEventListener('click', function (e) {
+          const stepperBtn = e.target.closest('.btn-stepper');
+          if (!stepperBtn) return;
+          const action = stepperBtn.dataset.action;
+          const grade = parseInt(stepperBtn.dataset.grade, 10);
+          if (!grade || !GRADE_CONFIG[grade]) return;
+
+          let current = tempClassCounts[grade] || 8;
+          if (action === 'inc') {
+            current = Math.min(20, current + 1);
+          } else if (action === 'dec') {
+            current = Math.max(1, current - 1);
+          }
+          onClassCountChanged(grade, current);
+        });
+
+        // Direct input change for class counts
+        [classCountGrade1, classCountGrade2, classCountGrade3].forEach(function (inp, idx) {
+          if (!inp) return;
+          const grade = idx + 1;
+          inp.addEventListener('input', function () {
+            const val = parseInt(this.value, 10);
+            if (!isNaN(val) && val >= 1 && val <= 20) {
+              onClassCountChanged(grade, val);
+            }
+          });
+          inp.addEventListener('blur', function () {
+            let val = parseInt(this.value, 10);
+            if (isNaN(val) || val < 1) val = 1;
+            if (val > 20) val = 20;
+            this.value = val;
+            onClassCountChanged(grade, val);
+          });
+        });
+
+        btnOpenCapacityModal.addEventListener('click', openCapacityModal);
+        btnMatrixEditCap.addEventListener('click', openCapacityModal);
+        btnCancelCapacity.addEventListener('click', closeCapacityModal);
+        btnSaveCapacity.addEventListener('click', saveCapacityModalValues);
+        btnBatchApplyCapacity.addEventListener('click', batchApplyCapacity);
+
+        // --- 8. Reset All Modal (Admin Only) ---
+        btnAdminResetAll.addEventListener('click', function () {
+          modalResetConfirm.classList.add('show');
+        });
+
+        btnCancelReset.addEventListener('click', function () {
+          modalResetConfirm.classList.remove('show');
+        });
+
+        btnDoReset.addEventListener('click', function () {
+          attendees = [];
+          saveData();
+          modalResetConfirm.classList.remove('show');
+          renderAdminAll();
+          showToast('모든 데이터가 초기화되었습니다.');
+        });
+
+        // --- 9. Sample Data Generator (Middle school 1~3 grade compliant) ---
+        btnSampleData.addEventListener('click', function () {
+          const sampleList = [
+            { grade: 1, classNum: 1, name: '김민준', relations: ['부', '모'], attendeeCount: 2 },
+            { grade: 1, classNum: 3, name: '이서연', relations: ['모'], attendeeCount: 1 },
+            { grade: 1, classNum: 5, name: '박도윤', relations: ['부'], attendeeCount: 1 },
+            { grade: 1, classNum: 8, name: '정시우', relations: ['부', '모'], attendeeCount: 2 },
+            { grade: 2, classNum: 2, name: '최지우', relations: ['모'], attendeeCount: 1 },
+            { grade: 2, classNum: 4, name: '한예준', relations: ['부', '모'], attendeeCount: 2 },
+            { grade: 2, classNum: 7, name: '오하은', relations: ['모', '기타(조모)'], attendeeCount: 2 },
+            { grade: 2, classNum: 10, name: '윤지후', relations: ['부'], attendeeCount: 1 },
+            { grade: 3, classNum: 1, name: '송채원', relations: ['모'], attendeeCount: 1 },
+            { grade: 3, classNum: 3, name: '임서진', relations: ['부', '모'], attendeeCount: 2 },
+            { grade: 3, classNum: 6, name: '강유찬', relations: ['부'], attendeeCount: 1 },
+            { grade: 3, classNum: 9, name: '배지민', relations: ['모'], attendeeCount: 1 }
+          ];
+
+          const now = new Date();
+          const timeStr = `${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+          const formatted = sampleList.map(function (item, idx) {
+            return {
+              id: 'att_sample_' + idx + '_' + Date.now(),
+              grade: item.grade,
+              classNum: item.classNum,
+              name: item.name,
+              relations: item.relations,
+              attendeeCount: item.attendeeCount,
+              createdAt: timeStr
+            };
+          });
+
+          attendees = formatted;
+          saveData();
+          renderAdminAll();
+          showToast('중학교 예시 데이터 12건이 등록되었습니다.');
+        });
+
+        // Initialize
+        loadClassCounts();
+        loadData();
+        loadCapacities();
+        updateClassChipsForGrade(1);
+      })();
+    </script>
+  </body>
+</html>

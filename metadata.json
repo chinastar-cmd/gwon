@@ -1,0 +1,7 @@
+{
+  "name": "학부모 공개수업 등록",
+  "description": "학부모 공개수업 참석자 정보(학년, 반, 학생 이름, 관계)를 신속하게 입력하고 학년별·반별·최종 인원을 중복 없이 한눈에 집계하는 실용 도구입니다.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
