@@ -600,16 +600,33 @@ btnCancelPwd.addEventListener('click', function () {
   modalPassword.classList.remove('show');
 });
 
-btnConfirmPwd.addEventListener('click', verifyPasswordAndLogin);
+const adminPasswordForm = document.getElementById('admin-password-form') as HTMLFormElement | null;
+if (adminPasswordForm) {
+  adminPasswordForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    verifyPasswordAndLogin();
+  });
+}
+
+btnConfirmPwd.addEventListener('click', function (e) {
+  if (e && typeof e.preventDefault === 'function') {
+    e.preventDefault();
+  }
+  verifyPasswordAndLogin();
+});
 
 adminPasswordInput.addEventListener('keydown', function (e) {
   if (e.key === 'Enter') {
+    e.preventDefault();
     verifyPasswordAndLogin();
   }
 });
 
-function verifyPasswordAndLogin() {
-  const entered = adminPasswordInput.value;
+function verifyPasswordAndLogin(e?: Event) {
+  if (e && typeof e.preventDefault === 'function') {
+    e.preventDefault();
+  }
+  const entered = (adminPasswordInput.value || '').trim();
   if (entered === ADMIN_PASSWORD) {
     modalPassword.classList.remove('show');
     switchToAdminView();
@@ -621,6 +638,7 @@ function verifyPasswordAndLogin() {
     adminPasswordInput.focus();
   }
 }
+(window as any).verifyPasswordAndLogin = verifyPasswordAndLogin;
 
 function switchToAdminView() {
   isAdminLoggedIn = true;

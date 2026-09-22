@@ -2024,21 +2024,24 @@
           <p class="modal-instruction">
             1·2·3학년 통합 반별 통계 및 명단 확인을 위해 관리자 비밀번호를 입력해주세요.
           </p>
-          <div class="field-block">
-            <input
-              type="password"
-              id="admin-password-input"
-              class="text-input"
-              placeholder="비밀번호를 입력하세요"
-              autocomplete="current-password"
-              maxlength="15"
-            />
-          </div>
-          <div class="alert-bar error" id="admin-password-error" style="margin-top: 10px;"></div>
-          <div class="modal-btns">
-            <button type="button" class="btn-modal-back" id="btn-cancel-pwd">취소</button>
-            <button type="button" class="btn-modal-action" id="btn-confirm-pwd">확인</button>
-          </div>
+          <form id="admin-password-form" onsubmit="if(window.verifyPasswordAndLogin){window.verifyPasswordAndLogin(event);}return false;">
+            <div class="field-block">
+              <input
+                type="password"
+                id="admin-password-input"
+                class="text-input"
+                placeholder="비밀번호를 입력하세요 (기본값: 3000)"
+                autocomplete="current-password"
+                inputmode="numeric"
+                maxlength="15"
+              />
+            </div>
+            <div class="alert-bar error" id="admin-password-error" style="margin-top: 10px;"></div>
+            <div class="modal-btns">
+              <button type="button" class="btn-modal-back" id="btn-cancel-pwd" onclick="var m=document.getElementById('modal-password');if(m)m.classList.remove('show');">취소</button>
+              <button type="submit" class="btn-modal-action" id="btn-confirm-pwd" onclick="if(window.verifyPasswordAndLogin){window.verifyPasswordAndLogin(event);}">확인</button>
+            </div>
+          </form>
         </div>
       </div>
 
