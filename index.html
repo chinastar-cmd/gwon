@@ -294,6 +294,12 @@
         color: #ffffff;
       }
 
+      /* Hide the top header button when in admin mode */
+      body.is-admin-mode #btn-toggle-admin-mode,
+      .is-admin-mode .btn-admin-access {
+        display: none !important;
+      }
+
       /* View Panels */
       .view-panel {
         display: none;

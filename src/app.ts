@@ -499,33 +499,23 @@ parentForm.addEventListener('submit', function (e) {
   const now = new Date();
   const timeStr = `${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
-  const existingIdx = attendees.findIndex((a) => a.grade === grade && a.classNum === cls && a.name === studentName);
+  const cleanInputName = studentName.replace(/\s+/g, '');
+  const isDuplicate = attendees.some(
+    (a) => a.grade === grade && a.classNum === cls && (a.name || '').trim().replace(/\s+/g, '') === cleanInputName
+  );
 
-  let targetRecord: Attendee;
-
-  if (existingIdx !== -1) {
-    const current = attendees[existingIdx];
-    const merged = Array.from(new Set([...current.relations, ...relations]));
-    current.relations = merged;
-    current.attendeeCount = merged.length;
-    current.createdAt = timeStr;
-    targetRecord = current;
-    saveDataLocally();
-    showCompleteCard(grade, cls, studentName, merged, true);
-  } else {
-    targetRecord = {
-      id: 'att_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
-      grade: grade,
-      classNum: cls,
-      name: studentName,
-      relations: relations,
-      attendeeCount: relations.length,
-      createdAt: timeStr
-    };
-    attendees.unshift(targetRecord);
-    saveDataLocally();
-    showCompleteCard(grade, cls, studentName, relations, false);
-  }
+  const targetRecord: Attendee = {
+    id: 'att_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+    grade: grade,
+    classNum: cls,
+    name: studentName,
+    relations: relations,
+    attendeeCount: relations.length,
+    createdAt: timeStr
+  };
+  attendees.unshift(targetRecord);
+  saveDataLocally();
+  showCompleteCard(grade, cls, studentName, relations, isDuplicate);
 
   // Synchronize instantly to Cloud Firestore (Visible across all devices in real-time)
   addAttendeeDoc(targetRecord)
@@ -550,15 +540,27 @@ function showFormError(msg: string) {
   parentFormError.classList.add('show');
 }
 
-function showCompleteCard(grade: number, cls: number, name: string, relations: string[], isUpdate: boolean) {
+function showCompleteCard(grade: number, cls: number, name: string, relations: string[], isDuplicate: boolean) {
   parentForm.style.display = 'none';
-  completeStudentTitle.textContent = isUpdate ? '참석 정보가 업데이트되었습니다!' : '참석 등록이 완료되었습니다!';
-  completeStudentDesc.innerHTML = `
-    <strong>${grade}학년 ${cls}반 ${escapeHtml(name)}</strong> 학생 학부모님 (${relations.join(', ')})<br />
-    공개수업 방문을 환영합니다.
-  `;
+  if (isDuplicate) {
+    completeStudentTitle.textContent = '참석 등록 완료 (중복데이터 접수)';
+    completeStudentDesc.innerHTML = `
+      <div class="badge-duplicate" style="font-size:0.85rem; padding: 6px 14px; margin: 0 auto 12px; display: inline-flex; border-radius: 6px;">
+        ⚠️ 중복데이터 안내: 동일 학생으로 기존 등록 내역이 있어 추가 등록(중복데이터)으로 처리되었습니다.
+      </div><br />
+      <strong>${grade}학년 ${cls}반 ${escapeHtml(name)}</strong> 학생 학부모님 (${relations.join(', ')})<br />
+      공개수업 방문을 환영합니다.
+    `;
+    showToast(`${name} 학생 (중복데이터) 등록 완료 (클라우드 실시간 반영)`);
+  } else {
+    completeStudentTitle.textContent = '참석 등록이 완료되었습니다!';
+    completeStudentDesc.innerHTML = `
+      <strong>${grade}학년 ${cls}반 ${escapeHtml(name)}</strong> 학생 학부모님 (${relations.join(', ')})<br />
+      공개수업 방문을 환영합니다.
+    `;
+    showToast(`${name} 학생 학부모님 등록 완료 (클라우드 실시간 반영)`);
+  }
   successCompleteCard.classList.add('show');
-  showToast(`${name} 학생 학부모님 등록 완료 (클라우드 실시간 반영)`);
 }
 
 btnContinueRegister.addEventListener('click', function () {
@@ -674,8 +676,10 @@ function switchToAdminView() {
   isAdminLoggedIn = true;
   viewParent.classList.remove('active');
   viewAdmin.classList.add('active');
-  btnToggleAdminMode.classList.add('is-admin');
-  adminModeText.textContent = '등록 화면으로';
+  document.body.classList.add('is-admin-mode');
+  if (btnToggleAdminMode) {
+    btnToggleAdminMode.style.display = 'none';
+  }
 
   populateAdminClassFilter();
   renderAdminAll();
@@ -689,7 +693,11 @@ function switchToParentView() {
   isAdminLoggedIn = false;
   viewAdmin.classList.remove('active');
   viewParent.classList.add('active');
-  btnToggleAdminMode.classList.remove('is-admin');
+  document.body.classList.remove('is-admin-mode');
+  if (btnToggleAdminMode) {
+    btnToggleAdminMode.style.display = '';
+    btnToggleAdminMode.classList.remove('is-admin');
+  }
   adminModeText.textContent = '관리자 페이지';
   updateSchoolNameDisplay();
   updateClassChipsForGrade(selectedGradeInForm);
@@ -912,7 +920,8 @@ function groupAttendees(list: Attendee[]): GroupedAttendee[] {
   const map = new Map<string, GroupedAttendee>();
 
   list.forEach((item) => {
-    const key = `${item.grade}-${item.classNum}-${item.name}`;
+    const cleanName = (item.name || '').trim().replace(/\s+/g, '');
+    const key = `${item.grade}-${item.classNum}-${cleanName}`;
     const existing = map.get(key);
     if (!existing) {
       map.set(key, {
@@ -920,7 +929,7 @@ function groupAttendees(list: Attendee[]): GroupedAttendee[] {
         ids: [item.id],
         grade: item.grade,
         classNum: item.classNum,
-        name: item.name,
+        name: (item.name || '').trim(),
         relations: [...item.relations],
         attendeeCount: item.attendeeCount || item.relations.length,
         createdTimes: item.createdAt ? [item.createdAt] : [],
