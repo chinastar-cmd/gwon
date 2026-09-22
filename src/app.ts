@@ -9,8 +9,6 @@ import {
   testFirestoreConnection
 } from './firebase';
 import { Attendee, ClassCounts, ClassCapacities } from './types';
-import { jsPDF } from 'jspdf';
-import html2canvas from 'html2canvas';
 
 // Constants: Middle school grade class counts
 const DEFAULT_CLASS_COUNTS: ClassCounts = {
@@ -382,14 +380,20 @@ function getTotalCapacity() {
 // --- 1. Dynamic Class Chips Rendering per Grade (Parent Form) ---
 function updateClassChipsForGrade(grade: number) {
   const config = GRADE_CONFIG[grade] || GRADE_CONFIG[1];
-  currentGradeClassInfo.textContent = `${config.name} 1~${config.maxClass}반`;
+  const maxClass = (config && config.maxClass && config.maxClass >= 1) ? config.maxClass : (gradeClassCounts[grade] || 8);
+  const gradeName = (config && config.name) || `${grade}학년`;
 
-  if (selectedClassInForm > config.maxClass) {
+  if (currentGradeClassInfo) {
+    currentGradeClassInfo.textContent = `${gradeName} 1~${maxClass}반`;
+  }
+
+  if (selectedClassInForm > maxClass || selectedClassInForm < 1) {
     selectedClassInForm = 1;
   }
 
+  if (!classChipContainer) return;
   classChipContainer.innerHTML = '';
-  for (let c = 1; c <= config.maxClass; c++) {
+  for (let c = 1; c <= maxClass; c++) {
     const label = document.createElement('label');
     const isChecked = c === selectedClassInForm;
 
@@ -398,15 +402,30 @@ function updateClassChipsForGrade(grade: number) {
       <div class="class-chip-label">${c}반</div>
     `;
 
-    const radio = label.querySelector('input') as HTMLInputElement;
-    radio.addEventListener('change', function () {
-      if (this.checked) {
-        selectedClassInForm = parseInt(this.value, 10);
-      }
-    });
-
     classChipContainer.appendChild(label);
   }
+}
+
+// Event Delegation for Class Chips (Fast & responsive on mobile)
+if (classChipContainer) {
+  classChipContainer.addEventListener('change', function (e) {
+    const target = e.target as HTMLInputElement;
+    if (target && target.name === 'studentClass' && target.checked) {
+      selectedClassInForm = parseInt(target.value, 10);
+    }
+  });
+}
+
+// Grade Radios Listener + Delegation
+const gradeChipGroup = document.getElementById('grade-chip-group');
+if (gradeChipGroup) {
+  gradeChipGroup.addEventListener('change', function (e) {
+    const target = e.target as HTMLInputElement;
+    if (target && target.name === 'studentGrade' && target.checked) {
+      selectedGradeInForm = parseInt(target.value, 10);
+      updateClassChipsForGrade(selectedGradeInForm);
+    }
+  });
 }
 
 const gradeRadios = document.querySelectorAll('input[name="studentGrade"]');
@@ -548,13 +567,21 @@ btnContinueRegister.addEventListener('click', function () {
 });
 
 // --- 3. Direct Admin Access from Header Button ---
-btnToggleAdminMode.addEventListener('click', function () {
+const handleToggleAdmin = function (e?: Event) {
+  if (e && typeof e.preventDefault === 'function') {
+    e.preventDefault();
+  }
   if (isAdminLoggedIn) {
     switchToParentView();
   } else {
     openPasswordModal();
   }
-});
+};
+
+if (btnToggleAdminMode) {
+  btnToggleAdminMode.addEventListener('click', handleToggleAdmin);
+}
+(window as any).toggleAdminMode = handleToggleAdmin;
 
 btnExitAdmin.addEventListener('click', function () {
   switchToParentView();
@@ -1126,6 +1153,11 @@ async function exportStatsAsPdf() {
   try {
     if (printHeader) printHeader.style.display = 'block';
     if (editBtn) editBtn.style.display = 'none';
+
+    const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+      import('html2canvas'),
+      import('jspdf')
+    ]);
 
     const canvas = await html2canvas(target, {
       scale: 2,

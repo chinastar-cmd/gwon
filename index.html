@@ -278,6 +278,9 @@
         align-items: center;
         gap: 6px;
         transition: all 0.15s ease;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
       }
 
       .btn-admin-access:hover {
@@ -403,6 +406,8 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
       }
 
       .grade-chip-label:hover {
@@ -443,6 +448,8 @@
         user-select: none;
         transition: all 0.15s ease;
         display: block;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
       }
 
       .class-chip-label:hover {
@@ -1561,7 +1568,13 @@
         </div>
         <div class="header-actions">
           <!-- Always accessible from Main Header -->
-          <button type="button" class="btn-admin-access" id="btn-toggle-admin-mode" title="관리자 페이지">
+          <button
+            type="button"
+            class="btn-admin-access"
+            id="btn-toggle-admin-mode"
+            title="관리자 페이지"
+            onclick="if(window.toggleAdminMode){window.toggleAdminMode(event);}else{var m=document.getElementById('modal-password');if(m)m.classList.add('show');}"
+          >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
               <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
@@ -1617,7 +1630,38 @@
                 <span class="field-badge">필수</span>
               </div>
               <div class="class-chip-group" id="class-chip-container">
-                <!-- Dynamically populated per grade -->
+                <label>
+                  <input type="radio" name="studentClass" value="1" class="choice-hidden" checked />
+                  <div class="class-chip-label">1반</div>
+                </label>
+                <label>
+                  <input type="radio" name="studentClass" value="2" class="choice-hidden" />
+                  <div class="class-chip-label">2반</div>
+                </label>
+                <label>
+                  <input type="radio" name="studentClass" value="3" class="choice-hidden" />
+                  <div class="class-chip-label">3반</div>
+                </label>
+                <label>
+                  <input type="radio" name="studentClass" value="4" class="choice-hidden" />
+                  <div class="class-chip-label">4반</div>
+                </label>
+                <label>
+                  <input type="radio" name="studentClass" value="5" class="choice-hidden" />
+                  <div class="class-chip-label">5반</div>
+                </label>
+                <label>
+                  <input type="radio" name="studentClass" value="6" class="choice-hidden" />
+                  <div class="class-chip-label">6반</div>
+                </label>
+                <label>
+                  <input type="radio" name="studentClass" value="7" class="choice-hidden" />
+                  <div class="class-chip-label">7반</div>
+                </label>
+                <label>
+                  <input type="radio" name="studentClass" value="8" class="choice-hidden" />
+                  <div class="class-chip-label">8반</div>
+                </label>
               </div>
             </div>
 
