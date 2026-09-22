@@ -103,6 +103,57 @@
         flex-shrink: 0;
       }
 
+      /* Cloud Real-Time Multi-Device Sync Indicator */
+      .sync-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        color: #15803d;
+        font-size: 0.78rem;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 9999px;
+        margin-top: 5px;
+        margin-bottom: 2px;
+        align-self: flex-start;
+        box-shadow: 0 1px 2px rgba(34, 197, 94, 0.08);
+      }
+
+      .sync-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #22c55e;
+        box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.25);
+        animation: pulse-sync 2.2s infinite ease-in-out;
+      }
+
+      .sync-dot.offline {
+        background: #f59e0b;
+        box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25);
+        animation: none;
+      }
+
+      @keyframes pulse-sync {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.45; transform: scale(0.85); }
+      }
+
+      .admin-cloud-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: #eef8f2;
+        border: 1px solid #a8dbb8;
+        color: #1d6a3f;
+        font-size: 0.78rem;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 6px;
+      }
+
       /* Admin Dedicated School Setting Panel */
       .admin-school-panel {
         background: #ffffff;
@@ -651,6 +702,18 @@
         border-color: #4caf50;
       }
 
+      .btn-admin-act.btn-pdf {
+        background: #fef2f2;
+        border-color: #fca5a5;
+        color: #b91c1c;
+        font-weight: 700;
+      }
+
+      .btn-admin-act.btn-pdf:hover {
+        background: #fee2e2;
+        border-color: #ef4444;
+      }
+
       .btn-admin-danger {
         color: var(--danger);
         border-color: #f1c5c5;
@@ -800,9 +863,10 @@
       }
 
       .td-nonexistent {
-        background-color: #f8faf8;
-        color: #c7d4cc;
-        font-size: 0.78rem;
+        background-color: #f9fbf9;
+        color: transparent;
+        user-select: none;
+        pointer-events: none;
       }
 
       /* Attendance Rate Badges */
@@ -1317,6 +1381,126 @@
         background: var(--danger);
       }
 
+      /* Duplicate Badge & Multiple Registration Time List */
+      .badge-duplicate {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        background: #fef3c7;
+        border: 1px solid #f59e0b;
+        color: #92400e;
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 9999px;
+        margin-left: 6px;
+        white-space: nowrap;
+        vertical-align: middle;
+      }
+
+      .time-multi-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .time-sub-item {
+        font-size: 0.76rem;
+        color: var(--text-muted);
+        white-space: nowrap;
+      }
+
+      .time-sub-item.tag-dup {
+        color: #b45309;
+        font-weight: 600;
+      }
+
+      /* Print & PDF Report Header */
+      .print-report-header {
+        display: none;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid var(--green-600);
+      }
+
+      .print-report-header h2 {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: var(--green-800);
+        margin-bottom: 6px;
+      }
+
+      .print-report-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.88rem;
+        color: var(--text-muted);
+      }
+
+      .print-report-school-badge {
+        background: #eef7f1;
+        color: var(--green-700);
+        border: 1px solid #a4d4b3;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-weight: 700;
+      }
+
+      @media print {
+        body {
+          background: #ffffff !important;
+          color: #111827 !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+
+        .app-header,
+        .admin-header-bar,
+        .admin-school-panel,
+        .admin-toolbar-actions,
+        #btn-matrix-edit-cap,
+        #admin-attendees-card,
+        .modal-backdrop,
+        .toast-popup,
+        #view-parent {
+          display: none !important;
+        }
+
+        #view-admin {
+          display: block !important;
+        }
+
+        .print-report-header {
+          display: block !important;
+        }
+
+        .admin-stats-report-area {
+          width: 100% !important;
+          background: #fff !important;
+        }
+
+        .admin-stat-card {
+          box-shadow: none !important;
+          border: 1px solid #d1e2d6 !important;
+          page-break-inside: avoid;
+        }
+
+        .admin-card {
+          box-shadow: none !important;
+          border: 1px solid #d1e2d6 !important;
+        }
+
+        .matrix-table-wrap {
+          overflow: visible !important;
+        }
+
+        .unified-matrix-table {
+          width: 100% !important;
+          font-size: 0.82rem !important;
+        }
+      }
+
       /* Google Sheet Info Box */
       .gsheet-guide-box {
         background: #f1f8f3;
@@ -1367,13 +1551,10 @@
             <span id="app-title-text">중학교 학부모 공개수업 등록</span>
           </h1>
 
-          <!-- Readonly School Badge for Parent View (Visible only when registered in Admin) -->
-          <div class="parent-school-badge" id="parent-school-badge" style="display: none;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-              <polyline points="9 22 9 12 15 12 15 22"></polyline>
-            </svg>
-            <span id="parent-school-name-text"></span>
+          <!-- Cloud Real-Time Multi-Device Sync Indicator -->
+          <div class="sync-badge" id="sync-badge" title="휴대폰, 노트북 등 모든 기기 실시간 자동 연동">
+            <span class="sync-dot" id="sync-dot"></span>
+            <span id="sync-status-text">클라우드 실시간 동기화</span>
           </div>
 
           <p id="app-subtitle">공개수업에 참석해주신 학부모님을 환영합니다. 학생 정보를 입력해주세요.</p>
@@ -1529,6 +1710,7 @@
             <div class="admin-badge-group">
               <span class="admin-tag">관리자 모드</span>
               <span id="admin-school-badge" class="admin-school-badge" style="display:none;"></span>
+              <span id="admin-cloud-indicator" class="admin-cloud-tag">🟢 실시간 다중 기기 자동 동기화 활성</span>
               <span style="font-size: 0.95rem; font-weight: 700; color: var(--green-700);">
                 학부모 공개수업 종합 집계 및 명단 관리
               </span>
@@ -1564,6 +1746,16 @@
                   <line x1="6" y1="20" x2="6" y2="14"></line>
                 </svg>
                 통계표 다운로드
+              </button>
+              <button type="button" class="btn-admin-act btn-pdf" id="btn-export-pdf" title="학부모 등록명단 제외: 현 페이지의 전교 통계 및 학년별 반별 매트릭스 표를 보이는 그대로 PDF로 저장">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                통계현황 PDF 저장
               </button>
               <button type="button" class="btn-admin-act" id="btn-sample-data" title="중학교 1~3학년 테스트용 샘플 12건 자동 입력">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1622,80 +1814,91 @@
             </div>
           </div>
 
-          <!-- Overall Summary Cards with Attendance Rate -->
-          <div class="admin-summary-grid">
-            <div class="admin-stat-card featured" id="admin-card-rate">
-              <div class="admin-stat-title">전체 학생 참석률 (실시간)</div>
-              <div>
-                <span class="admin-stat-value" id="stat-total-rate">0.0</span>
-                <span class="admin-stat-unit">%</span>
+          <!-- Exportable & Printable Stats Report Area (Used for PDF Export, strictly excluding Attendee List) -->
+          <div id="admin-stats-report-area" class="admin-stats-report-area">
+            <div class="print-report-header" id="print-report-header">
+              <h2 id="print-report-title">학부모 공개수업 종합 집계 및 반별 통계 보고서</h2>
+              <div class="print-report-meta">
+                <span id="print-report-school-badge" class="print-report-school-badge">중학교</span>
+                <span id="print-report-time">출력 일시: 2026. 9. 22. 10:30</span>
               </div>
-              <div class="admin-stat-desc" id="stat-rate-sub">참석 0명 / 전교 정원 675명</div>
             </div>
 
-            <div class="admin-stat-card" id="admin-card-unique-students">
-              <div class="admin-stat-title">참석 학생 수 (정원 대비)</div>
-              <div>
-                <span class="admin-stat-value" id="stat-unique-students">0</span>
-                <span class="admin-stat-unit" id="stat-unique-students-unit">/ 675명</span>
+            <!-- Overall Summary Cards with Attendance Rate -->
+            <div class="admin-summary-grid">
+              <div class="admin-stat-card featured" id="admin-card-rate">
+                <div class="admin-stat-title">전체 학생 참석률 (실시간)</div>
+                <div>
+                  <span class="admin-stat-value" id="stat-total-rate">0.0</span>
+                  <span class="admin-stat-unit">%</span>
+                </div>
+                <div class="admin-stat-desc" id="stat-rate-sub">참석 0명 / 전교 정원 675명</div>
               </div>
-              <div class="admin-stat-desc">중복 제외 참석 학생 가구 수</div>
+
+              <div class="admin-stat-card" id="admin-card-unique-students">
+                <div class="admin-stat-title">참석 학생 수 (정원 대비)</div>
+                <div>
+                  <span class="admin-stat-value" id="stat-unique-students">0</span>
+                  <span class="admin-stat-unit" id="stat-unique-students-unit">/ 675명</span>
+                </div>
+                <div class="admin-stat-desc">중복 제외 참석 학생 가구 수</div>
+              </div>
+
+              <div class="admin-stat-card" id="admin-card-total-attendees">
+                <div class="admin-stat-title">학부모 총 참석 인원</div>
+                <div>
+                  <span class="admin-stat-value" id="stat-total-attendees">0</span>
+                  <span class="admin-stat-unit">명</span>
+                </div>
+                <div class="admin-stat-desc">부, 모, 기타 동반 방문 학부모 실제 총합계</div>
+              </div>
+
+              <div class="admin-stat-card" id="admin-card-total-records">
+                <div class="admin-stat-title">총 등록 접수 건수</div>
+                <div>
+                  <span class="admin-stat-value" id="stat-total-records">0</span>
+                  <span class="admin-stat-unit">건</span>
+                </div>
+                <div class="admin-stat-desc">접수 완료된 누적 등록 건수</div>
+              </div>
             </div>
 
-            <div class="admin-stat-card" id="admin-card-total-attendees">
-              <div class="admin-stat-title">학부모 총 참석 인원</div>
-              <div>
-                <span class="admin-stat-value" id="stat-total-attendees">0</span>
-                <span class="admin-stat-unit">명</span>
-              </div>
-              <div class="admin-stat-desc">부, 모, 기타 동반 방문 학부모 실제 총합계</div>
-            </div>
-
-            <div class="admin-stat-card" id="admin-card-total-records">
-              <div class="admin-stat-title">총 등록 접수 건수</div>
-              <div>
-                <span class="admin-stat-value" id="stat-total-records">0</span>
-                <span class="admin-stat-unit">건</span>
-              </div>
-              <div class="admin-stat-desc">접수 완료된 누적 등록 건수</div>
-            </div>
-          </div>
-
-          <!-- ALL-IN-ONE: 1, 2, 3 Grade Unified Matrix Table on One Screen -->
-          <div class="admin-card">
-            <div class="admin-card-title">
-              <span style="display:flex; align-items:center; gap:8px;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--green-600)">
-                  <line x1="18" y1="20" x2="18" y2="10"></line>
-                  <line x1="12" y1="20" x2="12" y2="4"></line>
-                  <line x1="6" y1="20" x2="6" y2="14"></line>
-                </svg>
-                1·2·3학년 전 학년 반별 참석 통계 및 참석률 (한 화면 통합)
-              </span>
-              <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                <span style="font-size: 0.82rem; font-weight: 600; color: var(--green-700); background:#eef7f1; padding:3px 8px; border-radius:4px;">
-                  전교 총 <span id="matrix-total-classes-label">27</span>개 학급 · 정원 <span id="matrix-total-cap-label">675</span>명
+            <!-- ALL-IN-ONE: 1, 2, 3 Grade Unified Matrix Table on One Screen -->
+            <div class="admin-card" id="admin-matrix-card">
+              <div class="admin-card-title">
+                <span style="display:flex; align-items:center; gap:8px;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--green-600)">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                  </svg>
+                  1·2·3학년 전 학년 반별 참석 통계 및 참석률 (한 화면 통합)
                 </span>
-                <button type="button" class="btn-admin-act" id="btn-matrix-edit-cap" style="padding:4px 9px; font-size:0.8rem; background:#fff;">
-                  반 수 / 정원 설정
-                </button>
+                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                  <span style="font-size: 0.82rem; font-weight: 600; color: var(--green-700); background:#eef7f1; padding:3px 8px; border-radius:4px;">
+                    전교 총 <span id="matrix-total-classes-label">27</span>개 학급 · 정원 <span id="matrix-total-cap-label">675</span>명
+                  </span>
+                  <button type="button" class="btn-admin-act" id="btn-matrix-edit-cap" style="padding:4px 9px; font-size:0.8rem; background:#fff;">
+                    반 수 / 정원 설정
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <div class="matrix-table-wrap">
-              <table class="unified-matrix-table" id="all-grade-matrix-table">
-                <thead id="all-grade-matrix-thead">
-                  <!-- Dynamically populated to match highest class count (e.g. 1반 ~ N반) -->
-                </thead>
-                <tbody id="all-grade-matrix-tbody">
-                  <!-- Dynamically populated for Grades 1, 2, 3 + Grand Total -->
-                </tbody>
-              </table>
+              <div class="matrix-table-wrap">
+                <table class="unified-matrix-table" id="all-grade-matrix-table">
+                  <thead id="all-grade-matrix-thead">
+                    <!-- Dynamically populated to match highest class count (e.g. 1반 ~ N반) -->
+                  </thead>
+                  <tbody id="all-grade-matrix-tbody">
+                    <!-- Dynamically populated for Grades 1, 2, 3 + Grand Total -->
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
 
           <!-- Sorted Attendee Records Table (Grade -> Class -> Student Name Korean alphabetical) -->
-          <div class="admin-card">
+          <div class="admin-card" id="admin-attendees-card">
             <div class="list-filter-bar">
               <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                 <div style="font-size: 1.05rem; font-weight: 700; color: var(--green-700); display: flex; align-items: center; gap: 8px;">
@@ -1858,7 +2061,7 @@
                 <label for="class-count-grade-1">1학년</label>
                 <div class="grade-class-stepper">
                   <button type="button" class="btn-stepper" data-action="dec" data-grade="1" aria-label="1학년 반 수 감소">-</button>
-                  <input type="number" id="class-count-grade-1" class="input-class-count" min="1" max="20" value="8" />
+                  <input type="number" id="class-count-grade-1" class="input-class-count" data-grade="1" min="1" max="20" value="8" />
                   <span style="font-size: 0.84rem; font-weight: 700; color: var(--text-main);">반</span>
                   <button type="button" class="btn-stepper" data-action="inc" data-grade="1" aria-label="1학년 반 수 증가">+</button>
                 </div>
@@ -1868,7 +2071,7 @@
                 <label for="class-count-grade-2">2학년</label>
                 <div class="grade-class-stepper">
                   <button type="button" class="btn-stepper" data-action="dec" data-grade="2" aria-label="2학년 반 수 감소">-</button>
-                  <input type="number" id="class-count-grade-2" class="input-class-count" min="1" max="20" value="10" />
+                  <input type="number" id="class-count-grade-2" class="input-class-count" data-grade="2" min="1" max="20" value="10" />
                   <span style="font-size: 0.84rem; font-weight: 700; color: var(--text-main);">반</span>
                   <button type="button" class="btn-stepper" data-action="inc" data-grade="2" aria-label="2학년 반 수 증가">+</button>
                 </div>
@@ -1878,7 +2081,7 @@
                 <label for="class-count-grade-3">3학년</label>
                 <div class="grade-class-stepper">
                   <button type="button" class="btn-stepper" data-action="dec" data-grade="3" aria-label="3학년 반 수 감소">-</button>
-                  <input type="number" id="class-count-grade-3" class="input-class-count" min="1" max="20" value="9" />
+                  <input type="number" id="class-count-grade-3" class="input-class-count" data-grade="3" min="1" max="20" value="9" />
                   <span style="font-size: 0.84rem; font-weight: 700; color: var(--text-main);">반</span>
                   <button type="button" class="btn-stepper" data-action="inc" data-grade="3" aria-label="3학년 반 수 증가">+</button>
                 </div>
@@ -1945,7 +2148,7 @@
         </div>
       </div>
 
-      <!-- Confirmation Modal (For Reset All) -->
+      <!-- Confirmation Modal (For Reset All: Single-Step Warning Popup) -->
       <div class="modal-backdrop" id="modal-reset-confirm">
         <div class="modal-content">
           <button type="button" class="btn-modal-close-x" id="btn-close-reset-x" aria-label="닫기">
@@ -1962,13 +2165,21 @@
             </svg>
             전체 데이터 초기화
           </div>
-          <p class="modal-instruction">
-            등록된 모든 참석자 정보와 1·2·3학년 전체 집계 데이터가 영구적으로 삭제됩니다.<br />
-            정말 초기화를 진행하시겠습니까?
-          </p>
+
+          <div style="background:#fff5f5; border:1.5px solid #feb2b2; border-radius:8px; padding:14px; margin-bottom:16px;">
+            <p style="font-size:0.92rem; color:#742a2a; line-height:1.6; margin:0;">
+              등록된 모든 참석자 정보와 전 학년 집계 데이터가 영구적으로 삭제됩니다.<br />
+              현재 등록 인원: <strong id="reset-modal-attendee-count" style="color:var(--danger)">0</strong>명<br /><br />
+              <strong>삭제 후에는 클라우드 및 모든 연결된 기기에서 즉시 삭제되며 복구할 수 없습니다.</strong><br />
+              정말로 삭제하시겠습니까?
+            </p>
+          </div>
+
           <div class="modal-btns">
             <button type="button" class="btn-modal-back" id="btn-cancel-reset">취소</button>
-            <button type="button" class="btn-modal-action danger" id="btn-do-reset">전체 삭제</button>
+            <button type="button" class="btn-modal-action danger" id="btn-do-reset" style="font-size:0.92rem; font-weight:800; background: var(--danger);">
+              삭제
+            </button>
           </div>
         </div>
       </div>
@@ -2010,1343 +2221,7 @@
       <div class="toast-popup" id="toast-popup"></div>
     </div>
 
-    <!-- Application Script (Pure Vanilla JS, Responsive, Full LocalStorage) -->
-    <script>
-      (function () {
-        'use strict';
-
-        // Constants: Middle school grade class counts
-        // 1학년 = 8개반, 2학년 = 10개반, 3학년 = 9개반 (관리자 페이지에서 매년 학년별로 동적 변경 가능)
-        const DEFAULT_CLASS_COUNTS = {
-          1: 8,
-          2: 10,
-          3: 9
-        };
-
-        const GRADE_CONFIG = {
-          1: { name: '1학년', maxClass: 8 },
-          2: { name: '2학년', maxClass: 10 },
-          3: { name: '3학년', maxClass: 9 }
-        };
-
-        const STORAGE_KEY = 'ms_open_class_attendees_v2';
-        const CAPACITY_STORAGE_KEY = 'ms_open_class_capacities_v2';
-        const CLASS_COUNT_STORAGE_KEY = 'ms_open_class_counts_v2';
-        const SCHOOL_NAME_STORAGE_KEY = 'ms_open_school_name_v2';
-        const ADMIN_PASSWORD = '3000';
-
-        // Default Student Capacities (Middle school 1~3 grades)
-        const DEFAULT_CAPACITIES = {
-          1: { 1: 25, 2: 25, 3: 25, 4: 25, 5: 25, 6: 25, 7: 25, 8: 25 },
-          2: { 1: 25, 2: 25, 3: 25, 4: 25, 5: 25, 6: 25, 7: 25, 8: 25, 9: 25, 10: 25 },
-          3: { 1: 25, 2: 25, 3: 25, 4: 25, 5: 25, 6: 25, 7: 25, 8: 25, 9: 25 }
-        };
-
-        let attendees = [];
-        let gradeClassCounts = { ...DEFAULT_CLASS_COUNTS };
-        let classCapacities = JSON.parse(JSON.stringify(DEFAULT_CAPACITIES));
-        let schoolName = '';
-        let selectedGradeInForm = 1;
-        let selectedClassInForm = 1;
-        let isAdminLoggedIn = false;
-
-        // School Name Elements (Admin Managed)
-        const parentSchoolBadge = document.getElementById('parent-school-badge');
-        const parentSchoolNameText = document.getElementById('parent-school-name-text');
-        const appSubtitle = document.getElementById('app-subtitle');
-        const appTitleText = document.getElementById('app-title-text');
-        const adminSchoolBadge = document.getElementById('admin-school-badge');
-        const adminSchoolNameInput = document.getElementById('admin-school-name-input');
-        const btnAdminSaveSchool = document.getElementById('btn-admin-save-school');
-        const adminSchoolSaveIndicator = document.getElementById('admin-school-save-indicator');
-        const modalSchoolNameInput = document.getElementById('modal-school-name-input');
-
-        // Parent View Elements
-        const viewParent = document.getElementById('view-parent');
-        const viewAdmin = document.getElementById('view-admin');
-        const btnToggleAdminMode = document.getElementById('btn-toggle-admin-mode');
-        const adminModeText = document.getElementById('admin-mode-text');
-
-        const parentForm = document.getElementById('parent-attendee-form');
-        const classChipContainer = document.getElementById('class-chip-container');
-        const currentGradeClassInfo = document.getElementById('current-grade-class-info');
-        const studentNameInput = document.getElementById('student-name-input');
-        const relChkOther = document.getElementById('rel-chk-other');
-        const otherInputWrap = document.getElementById('other-input-wrap');
-        const otherDetailText = document.getElementById('other-detail-text');
-        const parentFormError = document.getElementById('parent-form-error');
-        const successCompleteCard = document.getElementById('success-complete-card');
-        const completeStudentTitle = document.getElementById('complete-student-title');
-        const completeStudentDesc = document.getElementById('complete-student-desc');
-        const btnContinueRegister = document.getElementById('btn-continue-register');
-
-        // Admin Elements
-        const btnExitAdmin = document.getElementById('btn-exit-admin');
-        const statTotalRate = document.getElementById('stat-total-rate');
-        const statRateSub = document.getElementById('stat-rate-sub');
-        const statTotalAttendees = document.getElementById('stat-total-attendees');
-        const statUniqueStudents = document.getElementById('stat-unique-students');
-        const statUniqueStudentsUnit = document.getElementById('stat-unique-students-unit');
-        const statTotalRecords = document.getElementById('stat-total-records');
-        const matrixTotalClassesLabel = document.getElementById('matrix-total-classes-label');
-        const matrixTotalCapLabel = document.getElementById('matrix-total-cap-label');
-        const btnMatrixEditCap = document.getElementById('btn-matrix-edit-cap');
-        const btnOpenCapacityModal = document.getElementById('btn-open-capacity-modal');
-        const allGradeMatrixThead = document.getElementById('all-grade-matrix-thead');
-        const allGradeMatrixTbody = document.getElementById('all-grade-matrix-tbody');
-        const adminAttendeesTbody = document.getElementById('admin-attendees-tbody');
-        const filteredRecordsCount = document.getElementById('filtered-records-count');
-        const adminFilterGrade = document.getElementById('admin-filter-grade');
-        const adminFilterClass = document.getElementById('admin-filter-class');
-        const adminFilterSearch = document.getElementById('admin-filter-search');
-        const btnExportGsheet = document.getElementById('btn-export-gsheet');
-        const btnExportCsv = document.getElementById('btn-export-csv');
-        const btnExportStatsCsv = document.getElementById('btn-export-stats-csv');
-        const btnSampleData = document.getElementById('btn-sample-data');
-        const btnAdminResetAll = document.getElementById('btn-admin-reset-all');
-
-        // Modals
-        const modalPassword = document.getElementById('modal-password');
-        const adminPasswordInput = document.getElementById('admin-password-input');
-        const adminPasswordError = document.getElementById('admin-password-error');
-        const btnCancelPwd = document.getElementById('btn-cancel-pwd');
-        const btnConfirmPwd = document.getElementById('btn-confirm-pwd');
-
-        const modalCapacity = document.getElementById('modal-capacity');
-        const batchCapacityInput = document.getElementById('batch-capacity-input');
-        const btnBatchApplyCapacity = document.getElementById('btn-batch-apply-capacity');
-        const classCountGrade1 = document.getElementById('class-count-grade-1');
-        const classCountGrade2 = document.getElementById('class-count-grade-2');
-        const classCountGrade3 = document.getElementById('class-count-grade-3');
-        const capSectionTitleGrade1 = document.getElementById('cap-section-title-grade-1');
-        const capSectionTitleGrade2 = document.getElementById('cap-section-title-grade-2');
-        const capSectionTitleGrade3 = document.getElementById('cap-section-title-grade-3');
-        const capSumClasses = document.getElementById('cap-sum-classes');
-        const capacityGridGrade1 = document.getElementById('capacity-grid-grade-1');
-        const capacityGridGrade2 = document.getElementById('capacity-grid-grade-2');
-        const capacityGridGrade3 = document.getElementById('capacity-grid-grade-3');
-        const capSumGrade1 = document.getElementById('cap-sum-grade-1');
-        const capSumGrade2 = document.getElementById('cap-sum-grade-2');
-        const capSumGrade3 = document.getElementById('cap-sum-grade-3');
-        const capSumTotal = document.getElementById('cap-sum-total');
-        const btnCancelCapacity = document.getElementById('btn-cancel-capacity');
-        const btnSaveCapacity = document.getElementById('btn-save-capacity');
-
-        const modalResetConfirm = document.getElementById('modal-reset-confirm');
-        const btnCancelReset = document.getElementById('btn-cancel-reset');
-        const btnDoReset = document.getElementById('btn-do-reset');
-
-        const modalGsheetGuide = document.getElementById('modal-gsheet-guide');
-        const btnCloseGsheetModal = document.getElementById('btn-close-gsheet-modal');
-        const btnConfirmGsheetDownload = document.getElementById('btn-confirm-gsheet-download');
-
-        // Modal Close X Buttons (for easy mobile touch closing)
-        const btnClosePwdX = document.getElementById('btn-close-pwd-x');
-        const btnCloseCapacityX = document.getElementById('btn-close-capacity-x');
-        const btnCloseResetX = document.getElementById('btn-close-reset-x');
-        const btnCloseGsheetX = document.getElementById('btn-close-gsheet-x');
-
-        // Toast
-        const toastPopup = document.getElementById('toast-popup');
-
-        function showToast(msg) {
-          toastPopup.textContent = msg;
-          toastPopup.classList.add('show');
-          setTimeout(function () {
-            toastPopup.classList.remove('show');
-          }, 2400);
-        }
-
-        // --- School Name Management (Admin Managed) ---
-        function loadSchoolName() {
-          try {
-            const saved = localStorage.getItem(SCHOOL_NAME_STORAGE_KEY);
-            if (saved) {
-              schoolName = saved.trim();
-            } else {
-              schoolName = '';
-            }
-          } catch (e) {
-            console.error('Failed to load school name', e);
-            schoolName = '';
-          }
-          updateSchoolNameDisplay();
-        }
-
-        function saveSchoolName(name, showToastMsg) {
-          if (name !== undefined) {
-            schoolName = String(name).trim();
-          } else if (adminSchoolNameInput) {
-            schoolName = adminSchoolNameInput.value.trim();
-          }
-          try {
-            localStorage.setItem(SCHOOL_NAME_STORAGE_KEY, schoolName);
-          } catch (e) {
-            console.error('Failed to save school name', e);
-          }
-          updateSchoolNameDisplay();
-
-          if (adminSchoolSaveIndicator) {
-            adminSchoolSaveIndicator.classList.add('show');
-            setTimeout(function () {
-              adminSchoolSaveIndicator.classList.remove('show');
-            }, 2000);
-          }
-
-          if (showToastMsg) {
-            if (schoolName) {
-              showToast(`학교명이 '${schoolName}'(으)로 등록·반영되었습니다.`);
-            } else {
-              showToast('학교명이 초기화되었습니다.');
-            }
-          }
-        }
-
-        function updateSchoolNameDisplay() {
-          if (schoolName) {
-            document.title = `${schoolName} 학부모 공개수업 등록`;
-            if (appTitleText) {
-              appTitleText.textContent = `${schoolName} 학부모 공개수업 등록`;
-            }
-            if (parentSchoolBadge && parentSchoolNameText) {
-              parentSchoolNameText.textContent = schoolName;
-              parentSchoolBadge.style.display = 'inline-flex';
-            }
-            if (appSubtitle) {
-              appSubtitle.textContent = `${schoolName} 공개수업에 참석해주신 학부모님을 환영합니다. 학생 정보를 입력해주세요.`;
-            }
-            if (adminSchoolBadge) {
-              adminSchoolBadge.textContent = schoolName;
-              adminSchoolBadge.style.display = 'inline-block';
-            }
-          } else {
-            document.title = '중학교 학부모 공개수업 등록';
-            if (appTitleText) {
-              appTitleText.textContent = '중학교 학부모 공개수업 등록';
-            }
-            if (parentSchoolBadge) {
-              parentSchoolBadge.style.display = 'none';
-            }
-            if (appSubtitle) {
-              appSubtitle.textContent = '공개수업에 참석해주신 학부모님을 환영합니다. 학생 정보를 입력해주세요.';
-            }
-            if (adminSchoolBadge) {
-              adminSchoolBadge.textContent = '';
-              adminSchoolBadge.style.display = 'none';
-            }
-          }
-
-          if (adminSchoolNameInput && adminSchoolNameInput !== document.activeElement) {
-            adminSchoolNameInput.value = schoolName;
-          }
-          if (modalSchoolNameInput && modalSchoolNameInput !== document.activeElement) {
-            modalSchoolNameInput.value = schoolName;
-          }
-        }
-
-        // --- Data Persistence ---
-        function loadData() {
-          try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (raw) {
-              const parsed = JSON.parse(raw);
-              if (Array.isArray(parsed)) {
-                // Strictly keep 1, 2, 3 grade records
-                attendees = parsed.filter(function (item) {
-                  return item.grade >= 1 && item.grade <= 3;
-                });
-              } else {
-                attendees = [];
-              }
-            } else {
-              attendees = [];
-            }
-          } catch (e) {
-            console.error('Failed to load localStorage', e);
-            attendees = [];
-          }
-        }
-
-        function saveData() {
-          try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(attendees));
-          } catch (e) {
-            console.error('Failed to save to localStorage', e);
-          }
-        }
-
-        // --- Grade Class Counts Persistence & Sync ---
-        function loadClassCounts() {
-          try {
-            const raw = localStorage.getItem(CLASS_COUNT_STORAGE_KEY);
-            if (raw) {
-              const parsed = JSON.parse(raw);
-              for (let g = 1; g <= 3; g++) {
-                const val = parseInt(parsed[g], 10);
-                gradeClassCounts[g] = (val && val >= 1 && val <= 20) ? val : DEFAULT_CLASS_COUNTS[g];
-              }
-            } else {
-              gradeClassCounts = { ...DEFAULT_CLASS_COUNTS };
-            }
-          } catch (e) {
-            gradeClassCounts = { ...DEFAULT_CLASS_COUNTS };
-          }
-          syncGradeConfig();
-        }
-
-        function saveClassCounts() {
-          try {
-            localStorage.setItem(CLASS_COUNT_STORAGE_KEY, JSON.stringify(gradeClassCounts));
-          } catch (e) {
-            console.error('Failed to save class counts', e);
-          }
-          syncGradeConfig();
-        }
-
-        function syncGradeConfig() {
-          for (let g = 1; g <= 3; g++) {
-            if (GRADE_CONFIG[g]) {
-              GRADE_CONFIG[g].maxClass = gradeClassCounts[g];
-            }
-          }
-        }
-
-        function getTotalClassCount() {
-          return (GRADE_CONFIG[1].maxClass || 0) + (GRADE_CONFIG[2].maxClass || 0) + (GRADE_CONFIG[3].maxClass || 0);
-        }
-
-        function getMaxClassAcrossGrades() {
-          return Math.max(GRADE_CONFIG[1].maxClass, GRADE_CONFIG[2].maxClass, GRADE_CONFIG[3].maxClass);
-        }
-
-        // --- Student Capacities Persistence & Calculations ---
-        function loadCapacities() {
-          try {
-            const raw = localStorage.getItem(CAPACITY_STORAGE_KEY);
-            if (raw) {
-              const parsed = JSON.parse(raw);
-              for (let g = 1; g <= 3; g++) {
-                if (!parsed[g]) parsed[g] = {};
-                const maxC = GRADE_CONFIG[g].maxClass;
-                for (let c = 1; c <= maxC; c++) {
-                  const n = parseInt(parsed[g][c], 10);
-                  parsed[g][c] = (n && n > 0) ? n : (DEFAULT_CAPACITIES[g] && DEFAULT_CAPACITIES[g][c]) || 25;
-                }
-              }
-              classCapacities = parsed;
-            } else {
-              classCapacities = JSON.parse(JSON.stringify(DEFAULT_CAPACITIES));
-              for (let g = 1; g <= 3; g++) {
-                if (!classCapacities[g]) classCapacities[g] = {};
-                const maxC = GRADE_CONFIG[g].maxClass;
-                for (let c = 1; c <= maxC; c++) {
-                  if (!classCapacities[g][c]) classCapacities[g][c] = 25;
-                }
-              }
-            }
-          } catch (e) {
-            classCapacities = JSON.parse(JSON.stringify(DEFAULT_CAPACITIES));
-          }
-        }
-
-        function saveCapacities() {
-          try {
-            localStorage.setItem(CAPACITY_STORAGE_KEY, JSON.stringify(classCapacities));
-          } catch (e) {
-            console.error('Failed to save capacities', e);
-          }
-        }
-
-        function getTotalCapacity() {
-          let sum = 0;
-          for (let g = 1; g <= 3; g++) {
-            for (let c = 1; c <= GRADE_CONFIG[g].maxClass; c++) {
-              sum += (classCapacities[g] && classCapacities[g][c]) || 25;
-            }
-          }
-          return sum;
-        }
-
-        function getGradeCapacity(g) {
-          let sum = 0;
-          const maxC = (GRADE_CONFIG[g] && GRADE_CONFIG[g].maxClass) || 0;
-          for (let c = 1; c <= maxC; c++) {
-            sum += (classCapacities[g] && classCapacities[g][c]) || 25;
-          }
-          return sum;
-        }
-
-        // --- 1. Dynamic Class Chips Rendering per Grade (Parent Form) ---
-        function updateClassChipsForGrade(grade) {
-          const config = GRADE_CONFIG[grade] || GRADE_CONFIG[1];
-          currentGradeClassInfo.textContent = `${config.name} 1~${config.maxClass}반`;
-
-          if (selectedClassInForm > config.maxClass) {
-            selectedClassInForm = 1;
-          }
-
-          classChipContainer.innerHTML = '';
-          for (let c = 1; c <= config.maxClass; c++) {
-            const label = document.createElement('label');
-            const isChecked = c === selectedClassInForm;
-
-            label.innerHTML = `
-              <input type="radio" name="studentClass" value="${c}" class="choice-hidden" ${isChecked ? 'checked' : ''} />
-              <div class="class-chip-label">${c}반</div>
-            `;
-
-            const radio = label.querySelector('input');
-            radio.addEventListener('change', function () {
-              if (this.checked) {
-                selectedClassInForm = parseInt(this.value, 10);
-              }
-            });
-
-            classChipContainer.appendChild(label);
-          }
-        }
-
-        const gradeRadios = document.querySelectorAll('input[name="studentGrade"]');
-        gradeRadios.forEach(function (radio) {
-          radio.addEventListener('change', function () {
-            if (this.checked) {
-              selectedGradeInForm = parseInt(this.value, 10);
-              updateClassChipsForGrade(selectedGradeInForm);
-            }
-          });
-        });
-
-        relChkOther.addEventListener('change', function () {
-          if (this.checked) {
-            otherInputWrap.classList.add('show');
-            otherDetailText.focus();
-          } else {
-            otherInputWrap.classList.remove('show');
-            otherDetailText.value = '';
-          }
-        });
-
-        // --- 2. Registration Form Submission ---
-        parentForm.addEventListener('submit', function (e) {
-          e.preventDefault();
-          parentFormError.classList.remove('show');
-
-          const checkedGradeRadio = document.querySelector('input[name="studentGrade"]:checked');
-          const checkedClassRadio = document.querySelector('input[name="studentClass"]:checked');
-          const studentName = studentNameInput.value.trim();
-          const checkedRelations = document.querySelectorAll('input[name="relationType"]:checked');
-
-          if (!checkedGradeRadio) {
-            showFormError('학년을 선택해주세요.');
-            return;
-          }
-          if (!checkedClassRadio) {
-            showFormError('반을 선택해주세요.');
-            return;
-          }
-          if (!studentName) {
-            showFormError('학생 이름을 입력해주세요.');
-            studentNameInput.focus();
-            return;
-          }
-          if (checkedRelations.length === 0) {
-            showFormError('학생과의 관계(부, 모, 기타)를 하나 이상 체크해주세요.');
-            return;
-          }
-
-          const grade = parseInt(checkedGradeRadio.value, 10);
-          const cls = parseInt(checkedClassRadio.value, 10);
-          const maxClass = GRADE_CONFIG[grade].maxClass;
-
-          if (cls < 1 || cls > maxClass) {
-            showFormError(`${grade}학년은 1반부터 ${maxClass}반까지만 선택 가능합니다.`);
-            return;
-          }
-
-          const relations = [];
-          checkedRelations.forEach(function (cb) {
-            if (cb.value === '기타') {
-              const detail = otherDetailText.value.trim();
-              relations.push(detail ? `기타(${detail})` : '기타');
-            } else {
-              relations.push(cb.value);
-            }
-          });
-
-          const now = new Date();
-          const timeStr = `${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-
-          const existingIdx = attendees.findIndex(function (a) {
-            return a.grade === grade && a.classNum === cls && a.name === studentName;
-          });
-
-          if (existingIdx !== -1) {
-            const current = attendees[existingIdx];
-            const merged = Array.from(new Set([...current.relations, ...relations]));
-            current.relations = merged;
-            current.attendeeCount = merged.length;
-            current.updatedAt = timeStr;
-            saveData();
-            showCompleteCard(grade, cls, studentName, merged, true);
-          } else {
-            const record = {
-              id: 'att_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-              grade: grade,
-              classNum: cls,
-              name: studentName,
-              relations: relations,
-              attendeeCount: relations.length,
-              createdAt: timeStr
-            };
-            attendees.unshift(record);
-            saveData();
-            showCompleteCard(grade, cls, studentName, relations, false);
-          }
-
-          studentNameInput.value = '';
-          checkedRelations.forEach(function (cb) {
-            cb.checked = false;
-          });
-          otherInputWrap.classList.remove('show');
-          otherDetailText.value = '';
-        });
-
-        function showFormError(msg) {
-          parentFormError.textContent = msg;
-          parentFormError.classList.add('show');
-        }
-
-        function showCompleteCard(grade, cls, name, relations, isUpdate) {
-          parentForm.style.display = 'none';
-          completeStudentTitle.textContent = isUpdate ? '참석 정보가 업데이트되었습니다!' : '참석 등록이 완료되었습니다!';
-          completeStudentDesc.innerHTML = `
-            <strong>${grade}학년 ${cls}반 ${escapeHtml(name)}</strong> 학생 학부모님 (${relations.join(', ')})<br />
-            공개수업 방문을 환영합니다.
-          `;
-          successCompleteCard.classList.add('show');
-          showToast(`${name} 학생 학부모님 등록 완료`);
-        }
-
-        btnContinueRegister.addEventListener('click', function () {
-          successCompleteCard.classList.remove('show');
-          parentForm.style.display = 'flex';
-          studentNameInput.focus();
-        });
-
-        // --- 3. Direct Admin Access from Header Button (No need to submit attendee form first) ---
-        btnToggleAdminMode.addEventListener('click', function () {
-          if (isAdminLoggedIn) {
-            switchToParentView();
-          } else {
-            openPasswordModal();
-          }
-        });
-
-        btnExitAdmin.addEventListener('click', function () {
-          switchToParentView();
-        });
-
-        function openPasswordModal() {
-          adminPasswordInput.value = '';
-          adminPasswordError.classList.remove('show');
-          modalPassword.classList.add('show');
-          setTimeout(function () {
-            adminPasswordInput.focus();
-          }, 100);
-        }
-
-        btnCancelPwd.addEventListener('click', function () {
-          modalPassword.classList.remove('show');
-        });
-
-        btnConfirmPwd.addEventListener('click', verifyPasswordAndLogin);
-
-        adminPasswordInput.addEventListener('keydown', function (e) {
-          if (e.key === 'Enter') {
-            verifyPasswordAndLogin();
-          }
-        });
-
-        function verifyPasswordAndLogin() {
-          const val = adminPasswordInput.value.trim();
-          if (val === ADMIN_PASSWORD) {
-            modalPassword.classList.remove('show');
-            isAdminLoggedIn = true;
-            switchToAdminView();
-            showToast('관리자 페이지로 접속되었습니다.');
-          } else {
-            adminPasswordError.textContent = '비밀번호가 일치하지 않습니다. 다시 확인해주세요.';
-            adminPasswordError.classList.add('show');
-            adminPasswordInput.focus();
-          }
-        }
-
-        function switchToAdminView() {
-          viewParent.classList.remove('active');
-          viewAdmin.classList.add('active');
-          btnToggleAdminMode.classList.add('is-admin');
-          adminModeText.textContent = '학부모 화면으로';
-          populateAdminClassFilter();
-          renderAdminAll();
-        }
-
-        function switchToParentView() {
-          viewAdmin.classList.remove('active');
-          viewParent.classList.add('active');
-          btnToggleAdminMode.classList.remove('is-admin');
-          adminModeText.textContent = '관리자 페이지';
-          updateSchoolNameDisplay();
-          updateClassChipsForGrade(selectedGradeInForm);
-        }
-
-        // --- 4. Admin View Renderers ---
-        function renderAdminAll() {
-          renderAdminStats();
-          renderUnifiedMatrixTable();
-          renderAdminAttendeesTable();
-        }
-
-        function renderAdminStats() {
-          const totalAtt = attendees.reduce(function (sum, a) {
-            return sum + (a.attendeeCount || a.relations.length || 1);
-          }, 0);
-
-          const uniqueKeys = new Set();
-          attendees.forEach(function (a) {
-            uniqueKeys.add(`${a.grade}-${a.classNum}-${a.name}`);
-          });
-          const uniqueCount = uniqueKeys.size;
-          const totalCap = getTotalCapacity();
-          const overallRate = totalCap > 0 ? ((uniqueCount / totalCap) * 100) : 0;
-
-          if (statTotalRate) {
-            statTotalRate.textContent = overallRate.toFixed(1);
-          }
-          if (statRateSub) {
-            statRateSub.textContent = `참석 ${uniqueCount.toLocaleString()}명 / 전교 정원 ${totalCap.toLocaleString()}명`;
-          }
-          if (statUniqueStudents) {
-            statUniqueStudents.textContent = uniqueCount.toLocaleString();
-          }
-          if (statUniqueStudentsUnit) {
-            statUniqueStudentsUnit.textContent = `/ ${totalCap.toLocaleString()}명`;
-          }
-          if (statTotalAttendees) {
-            statTotalAttendees.textContent = totalAtt.toLocaleString();
-          }
-          if (statTotalRecords) {
-            statTotalRecords.textContent = attendees.length.toLocaleString();
-          }
-          if (matrixTotalClassesLabel) {
-            matrixTotalClassesLabel.textContent = getTotalClassCount().toLocaleString();
-          }
-          if (matrixTotalCapLabel) {
-            matrixTotalCapLabel.textContent = totalCap.toLocaleString();
-          }
-        }
-
-        function getRateBadgeClass(rate, count) {
-          if (count === 0) return 'zero';
-          if (rate >= 70) return 'high';
-          if (rate >= 30) return 'mid';
-          return 'low';
-        }
-
-        // --- All-in-One 1, 2, 3 Grade Unified Matrix Table with Capacities & Attendance Rates ---
-        function renderUnifiedMatrixTable() {
-          allGradeMatrixTbody.innerHTML = '';
-
-          const maxCols = getMaxClassAcrossGrades();
-
-          // Dynamically build thead with exact number of class columns
-          if (allGradeMatrixThead) {
-            let theadHtml = '<tr><th style="width: 110px;">학년 구분</th>';
-            for (let c = 1; c <= maxCols; c++) {
-              theadHtml += `<th>${c}반</th>`;
-            }
-            theadHtml += '<th style="background:var(--green-100); color:var(--green-700); width:95px;">학년 합계</th></tr>';
-            allGradeMatrixThead.innerHTML = theadHtml;
-          }
-
-          let grandTotalParents = 0;
-          let grandTotalStudents = 0;
-          let grandTotalCap = 0;
-
-          const classColumnParents = Array(maxCols + 1).fill(0);
-          const classColumnStudents = Array(maxCols + 1).fill(0);
-          const classColumnCap = Array(maxCols + 1).fill(0);
-
-          // Iterate Grades 1, 2, 3
-          for (let g = 1; g <= 3; g++) {
-            const config = GRADE_CONFIG[g];
-            const gradeItems = attendees.filter(function (a) { return a.grade === g; });
-
-            let gradeParentsSum = 0;
-            let gradeStudentsSum = 0;
-            let gradeCapSum = 0;
-
-            // Row 1: Grade Parents Count
-            let trParents = `<td><strong>${config.name} (학부모)</strong></td>`;
-            // Row 2: Grade Students / Capacity Count
-            let trStudents = `<td style="color:var(--text-muted); font-size:0.82rem;"><strong>${config.name} (학생 / 정원)</strong></td>`;
-            // Row 3: Grade Attendance Rate (%)
-            let trRate = `<td style="color:var(--green-700); font-size:0.82rem; background:#fafdfb;"><strong>${config.name} (참석률)</strong></td>`;
-
-            for (let c = 1; c <= maxCols; c++) {
-              if (c <= config.maxClass) {
-                const classItems = gradeItems.filter(function (a) { return a.classNum === c; });
-                const pCount = classItems.reduce(function (sum, a) {
-                  return sum + (a.attendeeCount || a.relations.length || 1);
-                }, 0);
-                const sCount = new Set(classItems.map(function (a) { return a.name; })).size;
-                const cap = (classCapacities[g] && classCapacities[g][c]) || 25;
-                const rate = cap > 0 ? ((sCount / cap) * 100) : 0;
-                const badgeClass = getRateBadgeClass(rate, sCount);
-
-                gradeParentsSum += pCount;
-                gradeStudentsSum += sCount;
-                gradeCapSum += cap;
-
-                classColumnParents[c] += pCount;
-                classColumnStudents[c] += sCount;
-                classColumnCap[c] += cap;
-
-                trParents += `<td>${pCount > 0 ? `<strong>${pCount}</strong>` : '<span style="color:#b2c3b8;">0</span>'}</td>`;
-                trStudents += `<td><span style="font-weight:600; color:${sCount > 0 ? 'var(--text-main)' : '#9eb3a5'}">${sCount}</span><span style="font-size:0.75rem; color:#8fa196;">/${cap}</span></td>`;
-                trRate += `<td style="background:#fafdfb;"><span class="rate-badge ${badgeClass}">${rate.toFixed(1)}%</span></td>`;
-              } else {
-                // Class does not exist for this grade (e.g. beyond config.maxClass)
-                trParents += `<td class="td-nonexistent">-</td>`;
-                trStudents += `<td class="td-nonexistent">-</td>`;
-                trRate += `<td class="td-nonexistent">-</td>`;
-              }
-            }
-
-            grandTotalParents += gradeParentsSum;
-            grandTotalStudents += gradeStudentsSum;
-            grandTotalCap += gradeCapSum;
-
-            const gradeOverallRate = gradeCapSum > 0 ? ((gradeStudentsSum / gradeCapSum) * 100) : 0;
-            const gradeBadgeClass = getRateBadgeClass(gradeOverallRate, gradeStudentsSum);
-
-            trParents += `<td style="background:#eaf4ed; font-weight:800; color:var(--green-700);">${gradeParentsSum}명</td>`;
-            trStudents += `<td style="background:#eaf4ed; font-weight:700; color:var(--text-muted); font-size:0.83rem;">${gradeStudentsSum} / ${gradeCapSum}명</td>`;
-            trRate += `<td style="background:#e0efe5; font-weight:800;"><span class="rate-badge ${gradeBadgeClass}">${gradeOverallRate.toFixed(1)}%</span></td>`;
-
-            const tr1 = document.createElement('tr');
-            tr1.innerHTML = trParents;
-
-            const tr2 = document.createElement('tr');
-            tr2.innerHTML = trStudents;
-
-            const tr3 = document.createElement('tr');
-            tr3.style.borderBottom = '2px solid var(--border-color)';
-            tr3.innerHTML = trRate;
-
-            allGradeMatrixTbody.appendChild(tr1);
-            allGradeMatrixTbody.appendChild(tr2);
-            allGradeMatrixTbody.appendChild(tr3);
-          }
-
-          // Grand Total Section (3 Summary Rows)
-          // Row 1: Total Parents
-          const trTotalParents = document.createElement('tr');
-          trTotalParents.className = 'total-tr';
-          let totalParentsHtml = `<td><strong>전교 총 학부모 수</strong></td>`;
-          for (let c = 1; c <= maxCols; c++) {
-            const sum = classColumnParents[c];
-            totalParentsHtml += `<td>${sum > 0 ? `<strong>${sum}</strong>` : '<span style="color:#b2c3b8;">0</span>'}</td>`;
-          }
-          totalParentsHtml += `<td style="background:#dbeef0; font-size:0.95rem; font-weight:800; color:var(--green-700);">${grandTotalParents}명</td>`;
-          trTotalParents.innerHTML = totalParentsHtml;
-
-          // Row 2: Total Students / Capacity
-          const trTotalStudents = document.createElement('tr');
-          trTotalStudents.className = 'total-tr';
-          let totalStudentsHtml = `<td><strong style="color:var(--text-muted); font-size:0.82rem;">전교 학생 출석 / 정원</strong></td>`;
-          for (let c = 1; c <= maxCols; c++) {
-            const sSum = classColumnStudents[c];
-            const capSum = classColumnCap[c];
-            if (capSum > 0) {
-              totalStudentsHtml += `<td><span style="font-weight:700;">${sSum}</span><span style="font-size:0.75rem; color:#8fa196;">/${capSum}</span></td>`;
-            } else {
-              totalStudentsHtml += `<td class="td-nonexistent">-</td>`;
-            }
-          }
-          totalStudentsHtml += `<td style="background:#dbeef0; font-size:0.85rem; font-weight:700; color:var(--green-700);">${grandTotalStudents} / ${grandTotalCap}명</td>`;
-          trTotalStudents.innerHTML = totalStudentsHtml;
-
-          // Row 3: Overall Attendance Rate
-          const trTotalRate = document.createElement('tr');
-          trTotalRate.className = 'total-tr';
-          let totalRateHtml = `<td><strong style="color:var(--green-700);">전교 종합 참석률</strong></td>`;
-          for (let c = 1; c <= maxCols; c++) {
-            const sSum = classColumnStudents[c];
-            const capSum = classColumnCap[c];
-            if (capSum > 0) {
-              const colRate = (sSum / capSum) * 100;
-              const badgeClass = getRateBadgeClass(colRate, sSum);
-              totalRateHtml += `<td><span class="rate-badge ${badgeClass}">${colRate.toFixed(1)}%</span></td>`;
-            } else {
-              totalRateHtml += `<td class="td-nonexistent">-</td>`;
-            }
-          }
-          const grandRate = grandTotalCap > 0 ? ((grandTotalStudents / grandTotalCap) * 100) : 0;
-          totalRateHtml += `<td style="background:#24583c; color:#ffffff; font-size:0.95rem; font-weight:800;"><span class="rate-badge featured">${grandRate.toFixed(1)}%</span></td>`;
-          trTotalRate.innerHTML = totalRateHtml;
-
-          allGradeMatrixTbody.appendChild(trTotalParents);
-          allGradeMatrixTbody.appendChild(trTotalStudents);
-          allGradeMatrixTbody.appendChild(trTotalRate);
-        }
-
-        // --- 5. Sort Function: Grade -> Class -> Student Name Korean Alphabetical ---
-        function getSortedAttendees(list) {
-          return list.slice().sort(function (a, b) {
-            // 1. Grade asc
-            if (a.grade !== b.grade) {
-              return a.grade - b.grade;
-            }
-            // 2. Class asc
-            if (a.classNum !== b.classNum) {
-              return a.classNum - b.classNum;
-            }
-            // 3. Name Korean alphabetical (localeCompare with 'ko')
-            return a.name.localeCompare(b.name, 'ko', { sensitivity: 'base' });
-          });
-        }
-
-        function populateAdminClassFilter() {
-          const currentGrade = adminFilterGrade.value;
-          adminFilterClass.innerHTML = '<option value="all">전체 반</option>';
-
-          let maxC = getMaxClassAcrossGrades();
-          if (currentGrade !== 'all') {
-            maxC = (GRADE_CONFIG[parseInt(currentGrade, 10)] && GRADE_CONFIG[parseInt(currentGrade, 10)].maxClass) || 10;
-          }
-
-          for (let c = 1; c <= maxC; c++) {
-            const opt = document.createElement('option');
-            opt.value = c;
-            opt.textContent = `${c}반`;
-            adminFilterClass.appendChild(opt);
-          }
-        }
-
-        adminFilterGrade.addEventListener('change', function () {
-          populateAdminClassFilter();
-          renderAdminAttendeesTable();
-        });
-        adminFilterClass.addEventListener('change', renderAdminAttendeesTable);
-        adminFilterSearch.addEventListener('input', renderAdminAttendeesTable);
-
-        function renderAdminAttendeesTable() {
-          const gFilter = adminFilterGrade.value;
-          const cFilter = adminFilterClass.value;
-          const q = adminFilterSearch.value.trim().toLowerCase();
-
-          // 1. Filter
-          const filtered = attendees.filter(function (a) {
-            if (gFilter !== 'all' && a.grade !== parseInt(gFilter, 10)) return false;
-            if (cFilter !== 'all' && a.classNum !== parseInt(cFilter, 10)) return false;
-            if (q && !a.name.toLowerCase().includes(q)) return false;
-            return true;
-          });
-
-          // 2. Sort by Grade -> Class -> Name (가나다순)
-          const sorted = getSortedAttendees(filtered);
-
-          filteredRecordsCount.textContent = sorted.length;
-          adminAttendeesTbody.innerHTML = '';
-
-          if (sorted.length === 0) {
-            adminAttendeesTbody.innerHTML = `
-              <tr>
-                <td colspan="7" style="text-align:center; padding:32px; color:var(--text-sub);">
-                  등록된 참석자 내역이 없습니다.
-                </td>
-              </tr>
-            `;
-            return;
-          }
-
-          sorted.forEach(function (item, idx) {
-            const tr = document.createElement('tr');
-            const badges = item.relations.map(function (r) {
-              return `<span class="badge-rel">${escapeHtml(r)}</span>`;
-            }).join('');
-
-            tr.innerHTML = `
-              <td style="color:var(--text-sub);">${idx + 1}</td>
-              <td><strong>${item.grade}학년 ${item.classNum}반</strong></td>
-              <td><strong>${escapeHtml(item.name)}</strong></td>
-              <td>${badges}</td>
-              <td style="text-align:center;"><strong>${item.attendeeCount || item.relations.length}</strong>명</td>
-              <td style="font-size:0.8rem; color:var(--text-muted);">${item.createdAt || '-'}</td>
-              <td style="text-align:center;">
-                <button type="button" class="btn-row-del" data-id="${item.id}">삭제</button>
-              </td>
-            `;
-
-            const delBtn = tr.querySelector('.btn-row-del');
-            delBtn.addEventListener('click', function () {
-              deleteAttendee(item.id, item.name);
-            });
-
-            adminAttendeesTbody.appendChild(tr);
-          });
-        }
-
-        function deleteAttendee(id, name) {
-          if (confirm(`[${name}] 학생의 참석 등록 내역을 삭제하시겠습니까?`)) {
-            attendees = attendees.filter(function (a) { return a.id !== id; });
-            saveData();
-            renderAdminAll();
-            showToast(`${name} 학생 정보가 삭제되었습니다.`);
-          }
-        }
-
-        function escapeHtml(str) {
-          return String(str).replace(/[&<>"']/g, function (m) {
-            return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m];
-          });
-        }
-
-        // --- 6. Google Sheets & CSV Download (Sorted Grade -> Class -> Name) ---
-        function generateSortedCsvContent() {
-          const sortedList = getSortedAttendees(attendees);
-          let csv = '\uFEFF'; // UTF-8 BOM for perfect Korean character rendering in Excel and Google Sheets
-          csv += '번호,학년,반,학생이름,참석관계,학부모인원수,등록시간\n';
-
-          sortedList.forEach(function (a, i) {
-            const relText = a.relations.join(' / ');
-            csv += `${i + 1},${a.grade}학년,${a.classNum}반,"${a.name}","${relText}",${a.attendeeCount || a.relations.length},"${a.createdAt || ''}"\n`;
-          });
-
-          return csv;
-        }
-
-        function triggerDownload(csvContent, filename) {
-          const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-          const link = document.createElement('a');
-          const url = URL.createObjectURL(blob);
-          link.setAttribute('href', url);
-          link.setAttribute('download', filename);
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        }
-
-        // Google Sheets button handler
-        btnExportGsheet.addEventListener('click', function () {
-          if (attendees.length === 0) {
-            alert('다운로드할 참석자 명단이 없습니다.');
-            return;
-          }
-          modalGsheetGuide.classList.add('show');
-        });
-
-        btnCloseGsheetModal.addEventListener('click', function () {
-          modalGsheetGuide.classList.remove('show');
-        });
-
-        btnConfirmGsheetDownload.addEventListener('click', function () {
-          const today = new Date().toISOString().slice(0, 10);
-          const prefix = schoolName ? `${schoolName}_` : '중학교_';
-          const csv = generateSortedCsvContent();
-          triggerDownload(csv, `${prefix}학부모공개수업_명단_구글시트용_${today}.csv`);
-          modalGsheetGuide.classList.remove('show');
-          showToast('구글시트용 파일이 다운로드되었습니다.');
-        });
-
-        // Standard CSV button handler
-        btnExportCsv.addEventListener('click', function () {
-          if (attendees.length === 0) {
-            alert('다운로드할 참석자 명단이 없습니다.');
-            return;
-          }
-          const today = new Date().toISOString().slice(0, 10);
-          const prefix = schoolName ? `${schoolName}_` : '중학교_';
-          const csv = generateSortedCsvContent();
-          triggerDownload(csv, `${prefix}학부모공개수업_명단_${today}.csv`);
-          showToast('엑셀 명단이 정렬되어 다운로드되었습니다.');
-        });
-
-        // Statistics Table CSV Download handler
-        function generateStatsCsvContent() {
-          let csv = '\uFEFF'; // UTF-8 BOM for Korean Excel compatibility
-          csv += '학년,반,학생 정원(명),참석 학생 수(명),참석율(%),참석 학부모 수(명)\n';
-
-          for (let g = 1; g <= 3; g++) {
-            const config = GRADE_CONFIG[g];
-            const gradeItems = attendees.filter(function (a) { return a.grade === g; });
-            for (let c = 1; c <= config.maxClass; c++) {
-              const classItems = gradeItems.filter(function (a) { return a.classNum === c; });
-              const pCount = classItems.reduce(function (sum, a) {
-                return sum + (a.attendeeCount || a.relations.length || 1);
-              }, 0);
-              const sCount = new Set(classItems.map(function (a) { return a.name; })).size;
-              const cap = (classCapacities[g] && classCapacities[g][c]) || 25;
-              const rate = cap > 0 ? ((sCount / cap) * 100).toFixed(1) : '0.0';
-              csv += `${g}학년,${c}반,${cap},${sCount},${rate}%,${pCount}\n`;
-            }
-          }
-
-          // Total Summary row
-          const totalCap = getTotalCapacity();
-          const totalStudents = new Set(attendees.map(function (a) { return `${a.grade}-${a.classNum}-${a.name}`; })).size;
-          const totalParents = attendees.reduce(function (sum, a) { return sum + (a.attendeeCount || a.relations.length || 1); }, 0);
-          const totalRate = totalCap > 0 ? ((totalStudents / totalCap) * 100).toFixed(1) : '0.0';
-          csv += `전교 총합계,-,${totalCap},${totalStudents},${totalRate}%,${totalParents}\n`;
-
-          return csv;
-        }
-
-        btnExportStatsCsv.addEventListener('click', function () {
-          const today = new Date().toISOString().slice(0, 10);
-          const prefix = schoolName ? `${schoolName}_` : '중학교_';
-          const csv = generateStatsCsvContent();
-          triggerDownload(csv, `${prefix}학부모공개수업_반별통계_참석율_${today}.csv`);
-          showToast('반별 통계 및 참석률 표가 다운로드되었습니다.');
-        });
-
-        // --- 7. Grade Class Counts & Student Capacity (정원) Modal Handlers ---
-        let tempClassCounts = { 1: 8, 2: 10, 3: 9 };
-        let tempCapacities = {};
-
-        function openCapacityModal() {
-          if (modalSchoolNameInput) {
-            modalSchoolNameInput.value = schoolName;
-          }
-
-          tempClassCounts = {
-            1: gradeClassCounts[1] || 8,
-            2: gradeClassCounts[2] || 10,
-            3: gradeClassCounts[3] || 9
-          };
-          tempCapacities = JSON.parse(JSON.stringify(classCapacities));
-
-          if (classCountGrade1) classCountGrade1.value = tempClassCounts[1];
-          if (classCountGrade2) classCountGrade2.value = tempClassCounts[2];
-          if (classCountGrade3) classCountGrade3.value = tempClassCounts[3];
-
-          for (let g = 1; g <= 3; g++) {
-            renderGradeCapacityGrid(g);
-          }
-          updateCapacityModalSums();
-          modalCapacity.classList.add('show');
-        }
-
-        function closeCapacityModal() {
-          modalCapacity.classList.remove('show');
-        }
-
-        function renderGradeCapacityGrid(g) {
-          const grids = {
-            1: capacityGridGrade1,
-            2: capacityGridGrade2,
-            3: capacityGridGrade3
-          };
-          const grid = grids[g];
-          if (!grid) return;
-
-          const titleEl = document.getElementById(`cap-section-title-grade-${g}`);
-          if (titleEl) {
-            titleEl.textContent = `${g}학년 (1~${tempClassCounts[g]}반)`;
-          }
-
-          grid.innerHTML = '';
-          const maxC = tempClassCounts[g];
-          if (!tempCapacities[g]) tempCapacities[g] = {};
-
-          for (let c = 1; c <= maxC; c++) {
-            const currentVal = (tempCapacities[g] && tempCapacities[g][c]) || (classCapacities[g] && classCapacities[g][c]) || 25;
-            tempCapacities[g][c] = currentVal;
-
-            const box = document.createElement('div');
-            box.className = 'capacity-input-box';
-            box.innerHTML = `
-              <label for="cap-input-${g}-${c}">${c}반</label>
-              <input type="number" id="cap-input-${g}-${c}" data-grade="${g}" data-class="${c}" min="1" max="60" value="${currentVal}" />
-              <span style="font-size:0.75rem; color:var(--text-muted);">명</span>
-            `;
-            const inp = box.querySelector('input');
-            inp.addEventListener('input', function () {
-              const val = parseInt(this.value, 10);
-              tempCapacities[g][c] = (val && val > 0) ? val : 0;
-              updateCapacityModalSums();
-            });
-            grid.appendChild(box);
-          }
-        }
-
-        function onClassCountChanged(g, newCount) {
-          newCount = Math.max(1, Math.min(20, parseInt(newCount, 10) || 1));
-          tempClassCounts[g] = newCount;
-          const inputEl = document.getElementById(`class-count-grade-${g}`);
-          if (inputEl) inputEl.value = newCount;
-
-          renderGradeCapacityGrid(g);
-          updateCapacityModalSums();
-        }
-
-        function updateCapacityModalSums() {
-          let grandSum = 0;
-          let totalClasses = 0;
-
-          for (let g = 1; g <= 3; g++) {
-            let gSum = 0;
-            const maxC = tempClassCounts[g];
-            totalClasses += maxC;
-            for (let c = 1; c <= maxC; c++) {
-              const inp = document.getElementById(`cap-input-${g}-${c}`);
-              const val = inp ? (parseInt(inp.value, 10) || 0) : ((tempCapacities[g] && tempCapacities[g][c]) || 25);
-              gSum += val;
-            }
-            grandSum += gSum;
-            const sumEl = document.getElementById(`cap-sum-grade-${g}`);
-            if (sumEl) sumEl.textContent = `총 ${gSum.toLocaleString()}명`;
-          }
-
-          if (capSumClasses) capSumClasses.textContent = totalClasses;
-          if (capSumTotal) capSumTotal.textContent = grandSum.toLocaleString();
-        }
-
-        function saveCapacityModalValues() {
-          // 0. Save school name if changed in modal
-          if (modalSchoolNameInput) {
-            saveSchoolName(modalSchoolNameInput.value, false);
-          }
-
-          // 1. Save grade class counts
-          gradeClassCounts = {
-            1: Math.max(1, Math.min(20, parseInt(tempClassCounts[1], 10) || 8)),
-            2: Math.max(1, Math.min(20, parseInt(tempClassCounts[2], 10) || 10)),
-            3: Math.max(1, Math.min(20, parseInt(tempClassCounts[3], 10) || 9))
-          };
-          saveClassCounts();
-
-          // 2. Save capacities
-          for (let g = 1; g <= 3; g++) {
-            if (!classCapacities[g]) classCapacities[g] = {};
-            const maxC = gradeClassCounts[g];
-            for (let c = 1; c <= maxC; c++) {
-              const inp = document.getElementById(`cap-input-${g}-${c}`);
-              const val = inp ? parseInt(inp.value, 10) : ((tempCapacities[g] && tempCapacities[g][c]) || 25);
-              classCapacities[g][c] = (val && val > 0) ? val : 25;
-            }
-          }
-          saveCapacities();
-
-          closeCapacityModal();
-
-          // 3. Synchronize parent view, admin filter, and statistics
-          updateSchoolNameDisplay();
-          updateClassChipsForGrade(selectedGradeInForm);
-          populateAdminClassFilter();
-          renderAdminAll();
-
-          showToast('학교명, 학급 수 및 학생 정원이 사이트에 즉시 반영되었습니다.');
-        }
-
-        function batchApplyCapacity() {
-          const val = parseInt(batchCapacityInput.value, 10);
-          if (!val || val < 1 || val > 100) {
-            alert('올바른 학생 정원 인원수(1~100)를 입력해주세요.');
-            return;
-          }
-
-          for (let g = 1; g <= 3; g++) {
-            const maxC = tempClassCounts[g];
-            for (let c = 1; c <= maxC; c++) {
-              if (!tempCapacities[g]) tempCapacities[g] = {};
-              tempCapacities[g][c] = val;
-              const inp = document.getElementById(`cap-input-${g}-${c}`);
-              if (inp) inp.value = val;
-            }
-          }
-          updateCapacityModalSums();
-          showToast(`모든 반의 정원이 ${val}명으로 일괄 변경되었습니다.`);
-        }
-
-        // Stepper buttons event listener for Step 1
-        modalCapacity.addEventListener('click', function (e) {
-          const stepperBtn = e.target.closest('.btn-stepper');
-          if (!stepperBtn) return;
-          const action = stepperBtn.dataset.action;
-          const grade = parseInt(stepperBtn.dataset.grade, 10);
-          if (!grade || !GRADE_CONFIG[grade]) return;
-
-          let current = tempClassCounts[grade] || 8;
-          if (action === 'inc') {
-            current = Math.min(20, current + 1);
-          } else if (action === 'dec') {
-            current = Math.max(1, current - 1);
-          }
-          onClassCountChanged(grade, current);
-        });
-
-        // Direct input change for class counts
-        [classCountGrade1, classCountGrade2, classCountGrade3].forEach(function (inp, idx) {
-          if (!inp) return;
-          const grade = idx + 1;
-          inp.addEventListener('input', function () {
-            const val = parseInt(this.value, 10);
-            if (!isNaN(val) && val >= 1 && val <= 20) {
-              onClassCountChanged(grade, val);
-            }
-          });
-          inp.addEventListener('blur', function () {
-            let val = parseInt(this.value, 10);
-            if (isNaN(val) || val < 1) val = 1;
-            if (val > 20) val = 20;
-            this.value = val;
-            onClassCountChanged(grade, val);
-          });
-        });
-
-        btnOpenCapacityModal.addEventListener('click', openCapacityModal);
-        btnMatrixEditCap.addEventListener('click', openCapacityModal);
-        btnCancelCapacity.addEventListener('click', closeCapacityModal);
-        btnSaveCapacity.addEventListener('click', saveCapacityModalValues);
-        btnBatchApplyCapacity.addEventListener('click', batchApplyCapacity);
-
-        // Admin School Name Event Listeners
-        if (btnAdminSaveSchool) {
-          btnAdminSaveSchool.addEventListener('click', function () {
-            saveSchoolName(undefined, true);
-          });
-        }
-
-        if (adminSchoolNameInput) {
-          adminSchoolNameInput.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              saveSchoolName(undefined, true);
-              this.blur();
-            }
-          });
-
-          adminSchoolNameInput.addEventListener('blur', function () {
-            saveSchoolName(undefined, false);
-          });
-        }
-
-        if (modalSchoolNameInput) {
-          modalSchoolNameInput.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              saveSchoolName(this.value, true);
-              this.blur();
-            }
-          });
-        }
-
-        // Real-time synchronization across tabs/windows
-        window.addEventListener('storage', function (e) {
-          if (e.key === SCHOOL_NAME_STORAGE_KEY) {
-            loadSchoolName();
-          } else if (e.key === CLASS_COUNT_STORAGE_KEY) {
-            loadClassCounts();
-            updateClassChipsForGrade(selectedGradeInForm);
-            populateAdminClassFilter();
-            renderAdminAll();
-          } else if (e.key === CAPACITY_STORAGE_KEY) {
-            loadCapacities();
-            renderAdminAll();
-          } else if (e.key === STORAGE_KEY) {
-            loadData();
-            renderAdminAll();
-          }
-        });
-
-        // Modal Close X Buttons Event Handlers (Easily close on mobile)
-        if (btnClosePwdX) {
-          btnClosePwdX.addEventListener('click', function () {
-            modalPassword.classList.remove('show');
-          });
-        }
-
-        if (btnCloseCapacityX) {
-          btnCloseCapacityX.addEventListener('click', function () {
-            closeCapacityModal();
-          });
-        }
-
-        if (btnCloseResetX) {
-          btnCloseResetX.addEventListener('click', function () {
-            modalResetConfirm.classList.remove('show');
-          });
-        }
-
-        if (btnCloseGsheetX) {
-          btnCloseGsheetX.addEventListener('click', function () {
-            modalGsheetGuide.classList.remove('show');
-          });
-        }
-
-        // --- 8. Reset All Modal (Admin Only) ---
-        btnAdminResetAll.addEventListener('click', function () {
-          modalResetConfirm.classList.add('show');
-        });
-
-        btnCancelReset.addEventListener('click', function () {
-          modalResetConfirm.classList.remove('show');
-        });
-
-        btnDoReset.addEventListener('click', function () {
-          attendees = [];
-          saveData();
-          modalResetConfirm.classList.remove('show');
-          renderAdminAll();
-          showToast('모든 데이터가 초기화되었습니다.');
-        });
-
-        // --- 9. Sample Data Generator (Middle school 1~3 grade compliant) ---
-        btnSampleData.addEventListener('click', function () {
-          const sampleList = [
-            { grade: 1, classNum: 1, name: '김민준', relations: ['부', '모'], attendeeCount: 2 },
-            { grade: 1, classNum: 3, name: '이서연', relations: ['모'], attendeeCount: 1 },
-            { grade: 1, classNum: 5, name: '박도윤', relations: ['부'], attendeeCount: 1 },
-            { grade: 1, classNum: 8, name: '정시우', relations: ['부', '모'], attendeeCount: 2 },
-            { grade: 2, classNum: 2, name: '최지우', relations: ['모'], attendeeCount: 1 },
-            { grade: 2, classNum: 4, name: '한예준', relations: ['부', '모'], attendeeCount: 2 },
-            { grade: 2, classNum: 7, name: '오하은', relations: ['모', '기타(조모)'], attendeeCount: 2 },
-            { grade: 2, classNum: 10, name: '윤지후', relations: ['부'], attendeeCount: 1 },
-            { grade: 3, classNum: 1, name: '송채원', relations: ['모'], attendeeCount: 1 },
-            { grade: 3, classNum: 3, name: '임서진', relations: ['부', '모'], attendeeCount: 2 },
-            { grade: 3, classNum: 6, name: '강유찬', relations: ['부'], attendeeCount: 1 },
-            { grade: 3, classNum: 9, name: '배지민', relations: ['모'], attendeeCount: 1 }
-          ];
-
-          const now = new Date();
-          const timeStr = `${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-
-          const formatted = sampleList.map(function (item, idx) {
-            return {
-              id: 'att_sample_' + idx + '_' + Date.now(),
-              grade: item.grade,
-              classNum: item.classNum,
-              name: item.name,
-              relations: item.relations,
-              attendeeCount: item.attendeeCount,
-              createdAt: timeStr
-            };
-          });
-
-          attendees = formatted;
-          saveData();
-          renderAdminAll();
-          showToast('중학교 예시 데이터 12건이 등록되었습니다.');
-        });
-
-        // Initialize
-        loadSchoolName();
-        loadClassCounts();
-        loadData();
-        loadCapacities();
-        updateClassChipsForGrade(1);
-      })();
-    </script>
+    <!-- Application Script (TypeScript, Real-Time Cloud Firestore Sync) -->
+    <script type="module" src="/src/app.ts"></script>
   </body>
 </html>

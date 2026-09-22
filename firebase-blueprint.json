@@ -1,0 +1,76 @@
+{
+  "entities": {
+    "Attendee": {
+      "title": "Attendee",
+      "description": "Parent attendee record for middle school open class",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for attendee",
+          "maxLength": 128
+        },
+        "grade": {
+          "type": "number",
+          "description": "Grade number (1, 2, or 3)"
+        },
+        "classNum": {
+          "type": "number",
+          "description": "Class number within grade (1 to 20)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Student full name",
+          "maxLength": 50
+        },
+        "relations": {
+          "type": "array",
+          "description": "List of parent relations attending"
+        },
+        "attendeeCount": {
+          "type": "number",
+          "description": "Total count of attending parents"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Display timestamp string of registration",
+          "maxLength": 50
+        }
+      },
+      "required": ["id", "grade", "classNum", "name", "relations", "attendeeCount", "createdAt"]
+    },
+    "Setting": {
+      "title": "Setting",
+      "description": "Global school configuration item",
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "Setting key identifier",
+          "maxLength": 64
+        },
+        "data": {
+          "type": "string",
+          "description": "Serialized configuration JSON data",
+          "maxLength": 10000
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Update timestamp",
+          "maxLength": 50
+        }
+      },
+      "required": ["key", "data", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/attendees/{attendeeId}": {
+      "schema": "Attendee",
+      "description": "Open class attendee registrations submitted from multiple devices"
+    },
+    "/settings/{settingId}": {
+      "schema": "Setting",
+      "description": "Shared configurations such as school name, class counts and student capacities"
+    }
+  }
+}

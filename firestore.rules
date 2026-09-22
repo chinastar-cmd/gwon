@@ -1,0 +1,50 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128;
+    }
+
+    function isValidAttendee(data) {
+      return data.keys().hasAll(['id', 'grade', 'classNum', 'name', 'relations', 'attendeeCount', 'createdAt'])
+        && data.keys().hasOnly(['id', 'grade', 'classNum', 'name', 'relations', 'attendeeCount', 'createdAt'])
+        && data.id is string && data.id.size() > 0 && data.id.size() <= 128
+        && data.grade is number && data.grade >= 1 && data.grade <= 3
+        && data.classNum is number && data.classNum >= 1 && data.classNum <= 20
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 50
+        && data.relations is list && data.relations.size() > 0 && data.relations.size() <= 5
+        && data.relations[0] is string
+        && data.attendeeCount is number && data.attendeeCount >= 1 && data.attendeeCount <= 10
+        && data.createdAt is string && data.createdAt.size() <= 50;
+    }
+
+    function isValidSetting(data) {
+      return data.keys().hasAll(['key', 'data', 'updatedAt'])
+        && data.keys().hasOnly(['key', 'data', 'updatedAt'])
+        && data.key is string && data.key.size() > 0 && data.key.size() <= 64
+        && data.data is string && data.data.size() <= 10000
+        && data.updatedAt is string && data.updatedAt.size() <= 50;
+    }
+
+    // Attendees collection: Multi-device parent registration and real-time admin sync
+    match /attendees/{attendeeId} {
+      allow read: if true;
+      allow create, update: if isValidId(attendeeId) && isValidAttendee(request.resource.data);
+      allow delete: if isValidId(attendeeId);
+    }
+
+    // Settings collection: School name, grade-class counts, capacities
+    match /settings/{settingId} {
+      allow read: if true;
+      allow create, update: if isValidId(settingId) && isValidSetting(request.resource.data);
+      allow delete: if isValidId(settingId);
+    }
+
+    // Default deny all other paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
