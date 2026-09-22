@@ -74,6 +74,34 @@ export function subscribeAttendees(
   );
 }
 
+// Fetch latest attendees once directly (useful for mobile tab focus or manual refresh)
+export async function getLatestAttendees(): Promise<Attendee[]> {
+  try {
+    const colRef = collection(db, 'attendees');
+    const snapshot = await getDocs(colRef);
+    const list: Attendee[] = [];
+    snapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      if (data && data.name && data.grade) {
+        list.push({
+          id: docSnap.id,
+          grade: Number(data.grade),
+          classNum: Number(data.classNum),
+          name: String(data.name),
+          relations: Array.isArray(data.relations) ? data.relations : [String(data.relations || '학부모')],
+          attendeeCount: Number(data.attendeeCount || 1),
+          createdAt: String(data.createdAt || '')
+        });
+      }
+    });
+    list.sort((a, b) => b.id.localeCompare(a.id));
+    return list;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.GET, 'attendees');
+    return [];
+  }
+}
+
 // Add an Attendee document
 export async function addAttendeeDoc(attendee: Attendee): Promise<void> {
   const docRef = doc(db, 'attendees', attendee.id);

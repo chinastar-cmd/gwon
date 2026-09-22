@@ -6,7 +6,8 @@ import {
   batchAddAttendees,
   subscribeSettings,
   saveSettingDoc,
-  testFirestoreConnection
+  testFirestoreConnection,
+  getLatestAttendees
 } from './firebase';
 import { Attendee, ClassCounts, ClassCapacities } from './types';
 
@@ -589,6 +590,7 @@ btnExitAdmin.addEventListener('click', function () {
 
 function openPasswordModal() {
   adminPasswordInput.value = '';
+  adminPasswordError.textContent = '';
   adminPasswordError.classList.remove('show');
   modalPassword.classList.add('show');
   setTimeout(() => {
@@ -600,25 +602,44 @@ btnCancelPwd.addEventListener('click', function () {
   modalPassword.classList.remove('show');
 });
 
+if (btnClosePwdX) {
+  btnClosePwdX.addEventListener('click', function () {
+    modalPassword.classList.remove('show');
+  });
+}
+
+let isVerifyingPwd = false;
+function handleConfirmPwd(e?: Event) {
+  if (e) {
+    if (typeof e.preventDefault === 'function') e.preventDefault();
+    if (typeof e.stopPropagation === 'function') e.stopPropagation();
+  }
+  if (isVerifyingPwd) return;
+  isVerifyingPwd = true;
+  setTimeout(() => {
+    isVerifyingPwd = false;
+  }, 350);
+  verifyPasswordAndLogin(e);
+}
+
 const adminPasswordForm = document.getElementById('admin-password-form') as HTMLFormElement | null;
 if (adminPasswordForm) {
   adminPasswordForm.addEventListener('submit', function (e) {
     e.preventDefault();
-    verifyPasswordAndLogin();
+    handleConfirmPwd(e);
   });
 }
 
-btnConfirmPwd.addEventListener('click', function (e) {
-  if (e && typeof e.preventDefault === 'function') {
-    e.preventDefault();
-  }
-  verifyPasswordAndLogin();
+btnConfirmPwd.addEventListener('click', handleConfirmPwd);
+// On mobile devices, pointerdown/touchend ensures the tap is not cancelled when virtual keyboard dismisses
+btnConfirmPwd.addEventListener('pointerdown', function (e) {
+  handleConfirmPwd(e);
 });
 
 adminPasswordInput.addEventListener('keydown', function (e) {
   if (e.key === 'Enter') {
     e.preventDefault();
-    verifyPasswordAndLogin();
+    handleConfirmPwd(e);
   }
 });
 
@@ -626,13 +647,22 @@ function verifyPasswordAndLogin(e?: Event) {
   if (e && typeof e.preventDefault === 'function') {
     e.preventDefault();
   }
-  const entered = (adminPasswordInput.value || '').trim();
+  const raw = adminPasswordInput.value || '';
+  // Normalize full-width characters (e.g. ３０００) and trim whitespace
+  const entered = raw.trim().replace(/\s+/g, '').normalize('NFKC');
+
   if (entered === ADMIN_PASSWORD) {
+    adminPasswordInput.blur();
+    adminPasswordInput.value = '';
+    adminPasswordError.textContent = '';
+    adminPasswordError.classList.remove('show');
     modalPassword.classList.remove('show');
+
     switchToAdminView();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     showToast('관리자 모드로 전환되었습니다.');
   } else {
-    adminPasswordError.textContent = '비밀번호가 올바르지 않습니다. (기본값: 3000)';
+    adminPasswordError.textContent = '비밀번호가 올바르지 않습니다.';
     adminPasswordError.classList.add('show');
     adminPasswordInput.value = '';
     adminPasswordInput.focus();
@@ -650,6 +680,9 @@ function switchToAdminView() {
   populateAdminClassFilter();
   renderAdminAll();
   updateSchoolNameDisplay();
+
+  // Instant refresh from Cloud Firestore on mobile / desktop
+  refreshDataFromCloud(true);
 }
 
 function switchToParentView() {
@@ -1665,3 +1698,52 @@ subscribeSettings((cloudSettings) => {
     }
   }
 });
+
+// 5. Mobile & Multi-Device Auto-Sync and Manual Refresh
+async function refreshDataFromCloud(silent = true) {
+  try {
+    const list = await getLatestAttendees();
+    if (Array.isArray(list)) {
+      attendees = list;
+      saveDataLocally();
+      if (isAdminLoggedIn) {
+        renderAdminAll();
+      }
+      updateSyncStatus(true, `실시간 동기화 완료 (${attendees.length}명)`);
+      if (!silent) {
+        showToast(`최신 데이터가 동기화되었습니다. (총 ${attendees.length}명)`);
+      }
+    }
+  } catch (err) {
+    console.warn('Manual cloud sync failed', err);
+    if (!silent) {
+      showToast('클라우드 동기화 재시도 중...');
+    }
+  }
+}
+
+// When returning from background or unlocking phone, pull fresh data immediately
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    refreshDataFromCloud(true);
+  }
+});
+
+window.addEventListener('focus', () => {
+  refreshDataFromCloud(true);
+});
+
+window.addEventListener('online', () => {
+  updateSyncStatus(true, '네트워크 연결 복구, 실시간 동기화 중...');
+  refreshDataFromCloud(true);
+});
+
+// Clicking the sync indicator badge triggers immediate manual cloud sync
+if (syncBadge) {
+  syncBadge.style.cursor = 'pointer';
+  syncBadge.addEventListener('click', () => {
+    updateSyncStatus(true, '클라우드 최신 데이터 가져오는 중...');
+    refreshDataFromCloud(false);
+  });
+}
+
