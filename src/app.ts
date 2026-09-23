@@ -7,7 +7,8 @@ import {
   subscribeSettings,
   saveSettingDoc,
   testFirestoreConnection,
-  getLatestAttendees
+  getLatestAttendees,
+  getFirestoreConfigInfo
 } from './firebase';
 import { Attendee, ClassCounts, ClassCapacities } from './types';
 
@@ -633,10 +634,6 @@ if (adminPasswordForm) {
 }
 
 btnConfirmPwd.addEventListener('click', handleConfirmPwd);
-// On mobile devices, pointerdown/touchend ensures the tap is not cancelled when virtual keyboard dismisses
-btnConfirmPwd.addEventListener('pointerdown', function (e) {
-  handleConfirmPwd(e);
-});
 
 adminPasswordInput.addEventListener('keydown', function (e) {
   if (e.key === 'Enter') {
@@ -671,6 +668,7 @@ function verifyPasswordAndLogin(e?: Event) {
   }
 }
 (window as any).verifyPasswordAndLogin = verifyPasswordAndLogin;
+(window as any).switchToAdminView = switchToAdminView;
 
 function switchToAdminView() {
   isAdminLoggedIn = true;
@@ -1747,12 +1745,66 @@ window.addEventListener('online', () => {
   refreshDataFromCloud(true);
 });
 
-// Clicking the sync indicator badge triggers immediate manual cloud sync
+// Cloud Database Info & Multi-Device Sync Modal Handlers
+const modalCloudInfo = document.getElementById('modal-cloud-info') as HTMLElement | null;
+const btnCloseCloudInfo = document.getElementById('btn-close-cloud-info') as HTMLButtonElement | null;
+const btnCloseCloudInfoBack = document.getElementById('btn-close-cloud-info-back') as HTMLButtonElement | null;
+const btnForceRefreshCloud = document.getElementById('btn-force-refresh-cloud') as HTMLButtonElement | null;
+const infoCloudProject = document.getElementById('info-cloud-project') as HTMLElement | null;
+const infoCloudDatabase = document.getElementById('info-cloud-database') as HTMLElement | null;
+const infoCloudCount = document.getElementById('info-cloud-count') as HTMLElement | null;
+
+function openCloudInfoModal() {
+  const info = getFirestoreConfigInfo();
+  if (infoCloudProject) infoCloudProject.textContent = info.projectId;
+  if (infoCloudDatabase) infoCloudDatabase.textContent = info.databaseId;
+  if (infoCloudCount) infoCloudCount.textContent = `${attendees.length}명`;
+  if (modalCloudInfo) {
+    modalCloudInfo.classList.add('show');
+  }
+}
+
+function closeCloudInfoModal() {
+  if (modalCloudInfo) {
+    modalCloudInfo.classList.remove('show');
+  }
+}
+
 if (syncBadge) {
   syncBadge.style.cursor = 'pointer';
   syncBadge.addEventListener('click', () => {
-    updateSyncStatus(true, '클라우드 최신 데이터 가져오는 중...');
-    refreshDataFromCloud(false);
+    openCloudInfoModal();
+    refreshDataFromCloud(true);
+  });
+}
+
+if (adminCloudIndicator) {
+  adminCloudIndicator.addEventListener('click', () => {
+    openCloudInfoModal();
+    refreshDataFromCloud(true);
+  });
+}
+
+if (btnCloseCloudInfo) {
+  btnCloseCloudInfo.addEventListener('click', closeCloudInfoModal);
+}
+if (btnCloseCloudInfoBack) {
+  btnCloseCloudInfoBack.addEventListener('click', closeCloudInfoModal);
+}
+if (modalCloudInfo) {
+  modalCloudInfo.addEventListener('click', (e) => {
+    if (e.target === modalCloudInfo) {
+      closeCloudInfoModal();
+    }
+  });
+}
+
+if (btnForceRefreshCloud) {
+  btnForceRefreshCloud.addEventListener('click', async () => {
+    btnForceRefreshCloud.textContent = '동기화 중...';
+    await refreshDataFromCloud(false);
+    btnForceRefreshCloud.textContent = '🔄 지금 클라우드 데이터 새로고침';
+    if (infoCloudCount) infoCloudCount.textContent = `${attendees.length}명`;
   });
 }
 

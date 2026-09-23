@@ -8,13 +8,23 @@ import {
   onSnapshot,
   getDocs,
   getDocFromServer,
-  writeBatch
+  writeBatch,
+  query,
+  limit
 } from 'firebase/firestore';
 import firebaseConfig from '../firebase-applet-config.json';
 import { Attendee, ClassCounts, ClassCapacities, OperationType } from './types';
 
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+
+export function getFirestoreConfigInfo() {
+  return {
+    projectId: firebaseConfig.projectId,
+    databaseId: firebaseConfig.firestoreDatabaseId || '(default)',
+    appId: firebaseConfig.appId
+  };
+}
 
 export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
   const errInfo = {
@@ -28,14 +38,40 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
 // Test connection on boot
 export async function testFirestoreConnection(): Promise<boolean> {
   try {
-    await getDocFromServer(doc(db, 'settings', 'connection_test'));
+    const q = query(collection(db, 'attendees'), limit(1));
+    await getDocs(q);
     return true;
   } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.warn('Firebase client is offline or connecting...');
-      return false;
-    }
-    return true;
+    console.warn('Firestore connection check:', error);
+    return false;
+  }
+}
+
+// Fetch attendees once directly from server
+export async function fetchAttendeesOnce(): Promise<Attendee[]> {
+  try {
+    const colRef = collection(db, 'attendees');
+    const snapshot = await getDocs(colRef);
+    const list: Attendee[] = [];
+    snapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      if (data && data.name && data.grade) {
+        list.push({
+          id: docSnap.id,
+          grade: Number(data.grade),
+          classNum: Number(data.classNum),
+          name: String(data.name),
+          relations: Array.isArray(data.relations) ? data.relations : [String(data.relations || '학부모')],
+          attendeeCount: Number(data.attendeeCount || 1),
+          createdAt: String(data.createdAt || '')
+        });
+      }
+    });
+    list.sort((a, b) => b.id.localeCompare(a.id));
+    return list;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.GET, 'attendees');
+    throw error;
   }
 }
 
