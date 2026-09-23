@@ -382,7 +382,7 @@ function getTotalCapacity() {
 // --- 1. Dynamic Class Chips Rendering per Grade (Parent Form) ---
 function updateClassChipsForGrade(grade: number) {
   const config = GRADE_CONFIG[grade] || GRADE_CONFIG[1];
-  const maxClass = (config && config.maxClass && config.maxClass >= 1) ? config.maxClass : (gradeClassCounts[grade] || 8);
+  const maxClass = (gradeClassCounts[grade] && gradeClassCounts[grade] >= 1) ? gradeClassCounts[grade] : ((config && config.maxClass) || DEFAULT_CLASS_COUNTS[grade] || 8);
   const gradeName = (config && config.name) || `${grade}학년`;
 
   if (currentGradeClassInfo) {

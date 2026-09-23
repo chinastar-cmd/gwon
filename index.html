@@ -103,44 +103,6 @@
         flex-shrink: 0;
       }
 
-      /* Cloud Real-Time Multi-Device Sync Indicator */
-      .sync-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: #f0fdf4;
-        border: 1px solid #bbf7d0;
-        color: #15803d;
-        font-size: 0.78rem;
-        font-weight: 600;
-        padding: 3px 10px;
-        border-radius: 9999px;
-        margin-top: 5px;
-        margin-bottom: 2px;
-        align-self: flex-start;
-        box-shadow: 0 1px 2px rgba(34, 197, 94, 0.08);
-      }
-
-      .sync-dot {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: #22c55e;
-        box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.25);
-        animation: pulse-sync 2.2s infinite ease-in-out;
-      }
-
-      .sync-dot.offline {
-        background: #f59e0b;
-        box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25);
-        animation: none;
-      }
-
-      @keyframes pulse-sync {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.45; transform: scale(0.85); }
-      }
-
       .admin-cloud-tag {
         display: inline-flex;
         align-items: center;
@@ -1564,12 +1526,6 @@
             <span id="app-title-text">중학교 학부모 공개수업 등록</span>
           </h1>
 
-          <!-- Cloud Real-Time Multi-Device Sync Indicator -->
-          <div class="sync-badge" id="sync-badge" title="클릭하여 클라우드 데이터베이스 연동 상태 및 다중 기기 실시간 동기화 정보 확인" style="cursor: pointer;">
-            <span class="sync-dot" id="sync-dot"></span>
-            <span id="sync-status-text">클라우드 실시간 동기화</span>
-          </div>
-
           <p id="app-subtitle">공개수업에 참석해주신 학부모님을 환영합니다. 학생 정보를 입력해주세요.</p>
         </div>
         <div class="header-actions">
@@ -2274,46 +2230,64 @@
         </div>
       </div>
 
-      <!-- Cloud Database Info & Multi-Device Sync Modal -->
-      <div class="modal-overlay" id="modal-cloud-info">
-        <div class="modal-box" style="max-width: 540px;">
-          <button type="button" class="modal-close" id="btn-close-cloud-info">&times;</button>
-          <div class="modal-head-title" style="color: #1e5e37; display: flex; align-items: center; gap: 8px;">
-            <span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:#2e7d32;"></span>
-            클라우드 데이터베이스 실시간 연동 정보
-          </div>
-          <p class="modal-instruction" style="margin-bottom: 14px;">
-            휴대폰, 태블릿, 노트북 등 서로 다른 기기에서 동시에 입력해도 실시간으로 중앙 클라우드에 합산·동기화됩니다.
-          </p>
-          <div style="background:#f4f9f5; border:1px solid #cce5d5; border-radius:8px; padding:14px 16px; font-size:0.88rem; line-height:1.75; margin-bottom:14px;">
-            <div><strong>연동 상태:</strong> <span style="color:#2e7d32; font-weight:700;" id="info-cloud-status-badge">🟢 Google Cloud Firestore 실시간 연동 정상 활성</span></div>
-            <div><strong>클라우드 프로젝트 ID:</strong> <code style="background:#e8f3ec; padding:2px 6px; border-radius:4px; font-size:0.82rem;" id="info-cloud-project">gen-lang-client-0769087417</code></div>
-            <div><strong>데이터베이스 ID:</strong> <code style="background:#e8f3ec; padding:2px 6px; border-radius:4px; font-size:0.82rem;" id="info-cloud-database">ai-studio-a43802af-6f54-43e2-8bff-71beba87f1fb</code></div>
-            <div><strong>현재 클라우드 집계 참석자:</strong> <strong id="info-cloud-count" style="color:#1b5e20; font-size:1rem;">0명</strong> (실시간 동기화 중)</div>
-          </div>
-          <div style="font-size:0.84rem; color:#4a5568; line-height:1.6; margin-bottom:16px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px 14px;">
-            <strong style="color:#2d3748;">💡 스마트폰 & 노트북 다중 기기 실시간 동기화 작동 원리:</strong><br />
-            1. 학부모님이 스마트폰으로 QR코드나 주소를 통해 접속 후 등록을 완료하면 즉시 Google Cloud에 저장됩니다.<br />
-            2. 관리자 선생님 노트북 화면에는 새로고침(F5)을 누르지 않아도 약 1초 이내에 <strong>학년별·반별 집계표와 명단에 자동으로 실시간 반영</strong>됩니다.<br />
-            3. 데이터는 로컬 브라우저가 아닌 공용 클라우드 데이터베이스에 보존되므로 기기 간에 데이터 누락이나 불일치가 발생하지 않습니다.
-          </div>
-          <div class="modal-btns">
-            <button type="button" class="btn-modal-back" id="btn-close-cloud-info-back">닫기</button>
-            <button type="button" class="btn-modal-action" id="btn-force-refresh-cloud" style="background:#2e7d32;">
-              🔄 지금 클라우드 데이터 새로고침
-            </button>
-          </div>
-        </div>
-      </div>
-
       <!-- Toast Element -->
       <div class="toast-popup" id="toast-popup"></div>
     </div>
 
-    <!-- Application Script (TypeScript, Real-Time Cloud Firestore Sync) -->
-    <script type="module" src="./src/app.ts"></script>
+    <!-- 1. Instant Grade & Class Dynamic Chip Setup (Zero-lag Mobile Responsive) -->
+    <script>
+      (function () {
+        var DEFAULT_CLASS_COUNTS = { 1: 8, 2: 10, 3: 9 };
+        var savedCounts = null;
+        try {
+          var raw = localStorage.getItem('ms_open_class_counts_v2');
+          if (raw) savedCounts = JSON.parse(raw);
+        } catch (e) {}
+        var classCounts = (savedCounts && savedCounts[1] && savedCounts[2] && savedCounts[3]) ? savedCounts : DEFAULT_CLASS_COUNTS;
+        window.__CLASS_COUNTS = classCounts;
 
-    <!-- Native Mobile Touch & Failsafe Admin Auth Helper -->
+        function updateClasses(grade) {
+          var max = classCounts[grade] || DEFAULT_CLASS_COUNTS[grade] || 8;
+          var labelEl = document.getElementById('current-grade-class-info');
+          if (labelEl) {
+            labelEl.textContent = grade + '학년 1~' + max + '반';
+          }
+          var container = document.getElementById('class-chip-container');
+          if (!container) return;
+          var checkedVal = 1;
+          var checkedInput = container.querySelector('input[name="studentClass"]:checked');
+          if (checkedInput) {
+            var parsed = parseInt(checkedInput.value, 10);
+            if (parsed >= 1 && parsed <= max) checkedVal = parsed;
+          }
+          var html = '';
+          for (var c = 1; c <= max; c++) {
+            var isChk = (c === checkedVal) ? 'checked' : '';
+            html += '<label>' +
+              '<input type="radio" name="studentClass" value="' + c + '" class="choice-hidden" ' + isChk + ' />' +
+              '<div class="class-chip-label">' + c + '반</div>' +
+              '</label>';
+          }
+          container.innerHTML = html;
+        }
+        window.__updateClassChipsFast = updateClasses;
+
+        var gradeGroup = document.getElementById('grade-chip-group');
+        if (gradeGroup) {
+          gradeGroup.addEventListener('change', function (e) {
+            var t = e.target;
+            if (t && t.name === 'studentGrade' && t.checked) {
+              updateClasses(parseInt(t.value, 10));
+            }
+          });
+        }
+
+        // Initialize grade 1 classes immediately
+        updateClasses(1);
+      })();
+    </script>
+
+    <!-- 2. Native Mobile Touch & Failsafe Admin Auth Helper -->
     <script>
       window.closePasswordModal = function (e) {
         if (e && typeof e.preventDefault === 'function') e.preventDefault();
@@ -2356,6 +2330,33 @@
           }
         }
       };
+    </script>
+
+    <!-- 3. Universal Module Loader: AI Studio Vite Dev Server & GitHub Pages Static Hosting -->
+    <script>
+      (function () {
+        var isViteDev = location.port === '3000' || location.hostname === 'localhost' || location.hostname.includes('ais-dev');
+        if (!isViteDev) {
+          var s = document.createElement('script');
+          s.type = 'module';
+          s.crossOrigin = 'anonymous';
+          s.src = './assets/app.js';
+          s.onerror = function () {
+            var s2 = document.createElement('script');
+            s2.type = 'module';
+            s2.crossOrigin = 'anonymous';
+            s2.src = './dist/assets/app.js';
+            document.head.appendChild(s2);
+          };
+          document.head.appendChild(s);
+        }
+      })();
+    </script>
+    <script type="module">
+      var isViteDev = location.port === '3000' || location.hostname === 'localhost' || location.hostname.includes('ais-dev');
+      if (isViteDev) {
+        import('./src/app.ts');
+      }
     </script>
   </body>
 </html>
