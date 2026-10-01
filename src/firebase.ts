@@ -13,7 +13,7 @@ import {
   limit
 } from 'firebase/firestore';
 import firebaseConfig from '../firebase-applet-config.json';
-import { Attendee, ClassCounts, ClassCapacities, OperationType } from './types';
+import { Attendee, ClassCounts, ClassCapacities, HomeButtonConfig, OperationType } from './types';
 
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
@@ -213,6 +213,7 @@ export function subscribeSettings(
     schoolName?: string;
     classCounts?: ClassCounts;
     capacities?: ClassCapacities;
+    homeButton?: HomeButtonConfig;
   }) => void
 ) {
   const colRef = collection(db, 'settings');
@@ -222,6 +223,7 @@ export function subscribeSettings(
       let schoolName: string | undefined;
       let classCounts: ClassCounts | undefined;
       let capacities: ClassCapacities | undefined;
+      let homeButton: HomeButtonConfig | undefined;
 
       snapshot.forEach((docSnap) => {
         const id = docSnap.id;
@@ -240,10 +242,16 @@ export function subscribeSettings(
           } catch (e) {
             console.error('Failed to parse capacities', e);
           }
+        } else if (id === 'homeButton' && data && data.data) {
+          try {
+            homeButton = JSON.parse(data.data);
+          } catch (e) {
+            console.error('Failed to parse homeButton', e);
+          }
         }
       });
 
-      onData({ schoolName, classCounts, capacities });
+      onData({ schoolName, classCounts, capacities, homeButton });
     },
     (error) => {
       handleFirestoreError(error, OperationType.GET, 'settings');
@@ -253,7 +261,7 @@ export function subscribeSettings(
 
 // Save a setting document
 export async function saveSettingDoc(
-  key: 'schoolName' | 'classCounts' | 'capacities',
+  key: 'schoolName' | 'classCounts' | 'capacities' | 'homeButton',
   value: any
 ): Promise<void> {
   const docRef = doc(db, 'settings', key);

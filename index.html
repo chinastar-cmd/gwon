@@ -588,19 +588,73 @@
         line-height: 1.6;
       }
 
+      .complete-btn-group {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 8px;
+      }
+
       .btn-continue-register {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
         background: var(--green-600);
         color: #fff;
-        border: none;
+        border: 1px solid var(--green-700);
         border-radius: var(--radius-sm);
-        padding: 10px 22px;
-        font-size: 0.92rem;
+        padding: 11px 22px;
+        font-size: 0.94rem;
         font-weight: 700;
         cursor: pointer;
+        text-decoration: none;
+        box-shadow: 0 2px 4px rgba(22, 101, 52, 0.15);
+        transition: background 0.15s ease, transform 0.1s ease;
+        -webkit-tap-highlight-color: transparent;
       }
 
       .btn-continue-register:hover {
         background: var(--green-700);
+      }
+
+      .btn-continue-register:active {
+        transform: translateY(1px);
+      }
+
+      .btn-open-class-home {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        background: #1e40af;
+        color: #ffffff;
+        border: 1px solid #1d4ed8;
+        border-radius: var(--radius-sm);
+        padding: 11px 22px;
+        font-size: 0.94rem;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: none;
+        box-shadow: 0 2px 4px rgba(30, 64, 175, 0.2);
+        transition: background 0.15s ease, transform 0.1s ease;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .btn-open-class-home:hover {
+        background: #1d4ed8;
+        color: #ffffff;
+        text-decoration: none;
+      }
+
+      .btn-open-class-home:active {
+        transform: translateY(1px);
+      }
+
+      .btn-open-class-home.hidden {
+        display: none !important;
       }
 
       /* ==================== ADMIN VIEW STYLES ==================== */
@@ -1701,9 +1755,28 @@
             <div class="success-complete-desc" id="complete-student-desc">
               공개수업에 방문해 주셔서 감사합니다.<br />지정된 교실로 입장해 주시기 바랍니다.
             </div>
-            <button type="button" class="btn-continue-register" id="btn-continue-register">
-              다른 학생 추가 등록하기
-            </button>
+            <div class="complete-btn-group" id="complete-btn-group">
+              <button type="button" class="btn-continue-register" id="btn-continue-register">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 5v14M5 12h14"></path>
+                </svg>
+                다른 학생 추가 등록하기
+              </button>
+              <a
+                id="btn-open-class-home"
+                class="btn-open-class-home"
+                href="#"
+                target="_self"
+                rel="noopener noreferrer"
+                title="공개수업 홈으로 이동"
+              >
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                  <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                <span id="btn-open-class-home-text">공개수업 홈으로 이동</span>
+              </a>
+            </div>
           </div>
         </div>
       </main>
@@ -1730,6 +1803,13 @@
                   <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                 </svg>
                 학년별 반 수 및 정원 설정
+              </button>
+              <button type="button" class="btn-admin-act" id="btn-open-homelink-modal" style="background:#eff6ff; border-color:#93c5fd; color:#1e40af; font-weight:700;" title="학부모 등록 완료 후 노출되는 '공개수업 홈으로 이동' 버튼의 문구 및 링크 URL 설정">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                  <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                공개수업 홈 링크 설정
               </button>
               <button type="button" class="btn-admin-act btn-gsheet" id="btn-export-gsheet" title="구글 스프레드시트 호환 파일로 다운로드">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
@@ -2054,6 +2134,20 @@
             </div>
           </div>
 
+          <!-- Step 0-1: Open Class Home Link Quick Setup inside Capacity Modal -->
+          <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:var(--radius-sm); padding:10px 14px; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+            <div style="display:inline-flex; align-items:center; gap:6px; font-weight:700; color:#1e40af; font-size:0.86rem;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+              <span>등록 완료 화면 '공개수업 홈으로 이동' 버튼 설정:</span>
+            </div>
+            <button type="button" id="btn-quick-open-homelink" style="background:#1d4ed8; color:#fff; border:none; border-radius:4px; padding:6px 12px; font-size:0.82rem; font-weight:700; cursor:pointer;">
+              문구 및 링크 URL 설정하기 ➔
+            </button>
+          </div>
+
           <!-- Step 1: Grade Class Count Configuration -->
           <div class="grade-class-setup-card">
             <div class="grade-class-setup-header">
@@ -2156,6 +2250,138 @@
             <button type="button" class="btn-modal-back" id="btn-cancel-capacity">취소</button>
             <button type="button" class="btn-modal-action" id="btn-save-capacity" style="background: var(--green-600);">
               설정 저장 및 통계 반영
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Open Class Home Link Configuration Modal (Admin) -->
+      <div class="modal-backdrop" id="modal-homelink">
+        <div class="modal-content" style="max-width: 580px;">
+          <button type="button" class="btn-modal-close-x" id="btn-close-homelink-x" aria-label="닫기">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+          
+          <div class="modal-head-title" style="color: var(--green-700);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            공개수업 홈 이동 버튼 및 링크 설정
+          </div>
+
+          <p class="modal-instruction" style="margin-bottom: 16px;">
+            학부모님이 참석자 등록을 마쳤을 때 나오는 <strong>[다른 학생 추가 등록하기]</strong> 버튼 옆에 표시될 <strong>[공개수업 홈으로 이동]</strong> 버튼을 설정합니다.
+          </p>
+
+          <!-- Toggle Display Option -->
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-sm); padding: 12px 16px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between;">
+            <div>
+              <div style="font-weight: 700; color: var(--text-dark); font-size: 0.92rem;">홈 이동 버튼 노출 여부</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">참석 등록 완료 화면에 홈 이동 버튼을 표시합니다.</div>
+            </div>
+            <label style="position: relative; display: inline-flex; align-items: center; cursor: pointer; gap: 8px;">
+              <input type="checkbox" id="homelink-enable-checkbox" checked style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--green-600);" />
+              <span style="font-size: 0.86rem; font-weight: 700; color: var(--green-700);">버튼 활성화</span>
+            </label>
+          </div>
+
+          <!-- Button Text Setting -->
+          <div style="margin-bottom: 14px;">
+            <label for="homelink-text-input" style="display: block; font-weight: 700; font-size: 0.88rem; color: var(--text-dark); margin-bottom: 6px;">
+              버튼 표시 텍스트:
+            </label>
+            <input
+              type="text"
+              id="homelink-text-input"
+              class="text-input"
+              style="width: 100%; padding: 9px 12px; font-size: 0.92rem;"
+              placeholder="예: 공개수업 홈으로 이동"
+              value="공개수업 홈으로 이동"
+              maxlength="30"
+            />
+            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px;">
+              * 학부모님 화면에 노출될 버튼 글자입니다. (기본값: 공개수업 홈으로 이동)
+            </div>
+          </div>
+
+          <!-- URL Link Setting -->
+          <div style="margin-bottom: 14px;">
+            <label for="homelink-url-input" style="display: block; font-weight: 700; font-size: 0.88rem; color: var(--text-dark); margin-bottom: 6px;">
+              이동 링크 URL (웹사이트 주소):
+            </label>
+            <input
+              type="text"
+              id="homelink-url-input"
+              class="text-input"
+              style="width: 100%; padding: 9px 12px; font-size: 0.92rem; font-family: monospace;"
+              placeholder="예: https://school.hkg.ms.kr 또는 학교 홈페이지 주소"
+            />
+            <div style="font-size: 0.78rem; color: #0284c7; margin-top: 4px;">
+              💡 <code>https://</code> 가 생략되어도 클릭 시 자동으로 안전한 <code>https://</code> 링크로 연결됩니다.
+            </div>
+          </div>
+
+          <!-- Target Window (Popup Blocker Prevention) -->
+          <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 16px;">
+            <div style="font-size: 0.86rem; font-weight: 700; color: #15803d; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              모바일 팝업 차단 방지 이동 방식 선택:
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <label style="display: flex; align-items: flex-start; gap: 8px; cursor: pointer;">
+                <input type="radio" name="homelink-target" value="_self" checked style="margin-top: 3px; accent-color: var(--green-600);" />
+                <div>
+                  <span style="font-size: 0.86rem; font-weight: 700; color: var(--text-dark);">현재 창에서 바로 이동 (기본 권장)</span>
+                  <p style="font-size: 0.78rem; color: var(--text-muted); margin: 2px 0 0 0;">
+                    모바일 Safari, Chrome, 카카오톡/네이버 인앱 브라우저 등 엄격한 보안 환경에서도 팝업 차단 알림 없이 100% 즉시 열립니다.
+                  </p>
+                </div>
+              </label>
+              <label style="display: flex; align-items: flex-start; gap: 8px; cursor: pointer;">
+                <input type="radio" name="homelink-target" value="_blank" style="margin-top: 3px; accent-color: var(--green-600);" />
+                <div>
+                  <span style="font-size: 0.86rem; font-weight: 700; color: var(--text-dark);">새 탭 / 새 창으로 열기</span>
+                  <p style="font-size: 0.78rem; color: var(--text-muted); margin: 2px 0 0 0;">
+                    보안 표준 속성(<code>rel="noopener noreferrer"</code>)이 적용되어 안전하게 새 탭으로 열립니다.
+                  </p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Live Preview Box -->
+          <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 16px;">
+            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 8px;">
+              📱 등록 완료 화면 버튼 실시간 미리보기
+            </div>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;">
+              <span style="display: inline-flex; align-items: center; gap: 4px; background: var(--green-600); color: #fff; padding: 9px 16px; border-radius: 6px; font-size: 0.86rem; font-weight: 700;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 5v14M5 12h14"></path>
+                </svg>
+                다른 학생 추가 등록하기
+              </span>
+              <span id="homelink-preview-btn" style="display: inline-flex; align-items: center; gap: 5px; background: #1e40af; color: #fff; padding: 9px 16px; border-radius: 6px; font-size: 0.86rem; font-weight: 700; transition: opacity 0.2s ease;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                  <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                <span id="homelink-preview-text">공개수업 홈으로 이동</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="modal-btns">
+            <button type="button" class="btn-modal-back" id="btn-cancel-homelink">취소</button>
+            <button type="button" class="btn-modal-action" id="btn-save-homelink" style="background: var(--green-600);">
+              설정 저장 및 클라우드 동기화
             </button>
           </div>
         </div>
@@ -2284,6 +2510,31 @@
 
         // Initialize grade 1 classes immediately
         updateClasses(1);
+
+        // Instant Home Button Setup from Local Cache
+        try {
+          var homeRaw = localStorage.getItem('ms_open_class_home_button_v1');
+          if (homeRaw) {
+            var cfg = JSON.parse(homeRaw);
+            var btnHome = document.getElementById('btn-open-class-home');
+            var btnText = document.getElementById('btn-open-class-home-text');
+            if (btnHome) {
+              if (cfg.enabled === false) {
+                btnHome.style.display = 'none';
+              } else {
+                btnHome.style.display = 'inline-flex';
+                if (btnText && cfg.text) btnText.textContent = cfg.text;
+                if (cfg.url) {
+                  var u = cfg.url.trim();
+                  if (!/^https?:\/\//i.test(u) && !u.startsWith('/') && !u.startsWith('#')) u = 'https://' + u;
+                  btnHome.setAttribute('href', u);
+                  btnHome.setAttribute('target', cfg.target === '_blank' ? '_blank' : '_self');
+                  btnHome.setAttribute('rel', 'noopener noreferrer');
+                }
+              }
+            }
+          }
+        } catch (e) {}
       })();
     </script>
 

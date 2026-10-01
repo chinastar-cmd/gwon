@@ -10,7 +10,7 @@ import {
   getLatestAttendees,
   getFirestoreConfigInfo
 } from './firebase';
-import { Attendee, ClassCounts, ClassCapacities } from './types';
+import { Attendee, ClassCounts, ClassCapacities, HomeButtonConfig } from './types';
 
 // Constants: Middle school grade class counts
 const DEFAULT_CLASS_COUNTS: ClassCounts = {
@@ -29,7 +29,17 @@ const STORAGE_KEY = 'ms_open_class_attendees_v2';
 const CAPACITY_STORAGE_KEY = 'ms_open_class_capacities_v2';
 const CLASS_COUNT_STORAGE_KEY = 'ms_open_class_counts_v2';
 const SCHOOL_NAME_STORAGE_KEY = 'ms_open_school_name_v2';
+const HOME_BUTTON_STORAGE_KEY = 'ms_open_class_home_button_v1';
 const ADMIN_PASSWORD = '3000';
+
+const DEFAULT_HOME_BUTTON_CONFIG: HomeButtonConfig = {
+  enabled: true,
+  text: '공개수업 홈으로 이동',
+  url: '',
+  target: '_self'
+};
+
+let homeButtonConfig: HomeButtonConfig = { ...DEFAULT_HOME_BUTTON_CONFIG };
 
 // Default Student Capacities (Middle school 1~3 grades)
 const DEFAULT_CAPACITIES: ClassCapacities = {
@@ -141,6 +151,20 @@ const btnClosePwdX = document.getElementById('btn-close-pwd-x') as HTMLButtonEle
 const btnCloseCapacityX = document.getElementById('btn-close-capacity-x') as HTMLButtonElement | null;
 const btnCloseResetX = document.getElementById('btn-close-reset-x') as HTMLButtonElement | null;
 const btnCloseGsheetX = document.getElementById('btn-close-gsheet-x') as HTMLButtonElement | null;
+const btnCloseHomeLinkX = document.getElementById('btn-close-homelink-x') as HTMLButtonElement | null;
+
+// Home Link Button & Modal DOM Elements
+const btnOpenClassHome = document.getElementById('btn-open-class-home') as HTMLAnchorElement | null;
+const btnOpenClassHomeText = document.getElementById('btn-open-class-home-text') as HTMLElement | null;
+const btnOpenHomeLinkModal = document.getElementById('btn-open-homelink-modal') as HTMLButtonElement | null;
+const modalHomeLink = document.getElementById('modal-homelink') as HTMLElement | null;
+const btnCancelHomeLink = document.getElementById('btn-cancel-homelink') as HTMLButtonElement | null;
+const btnSaveHomeLink = document.getElementById('btn-save-homelink') as HTMLButtonElement | null;
+const homelinkEnableCheckbox = document.getElementById('homelink-enable-checkbox') as HTMLInputElement | null;
+const homelinkTextInput = document.getElementById('homelink-text-input') as HTMLInputElement | null;
+const homelinkUrlInput = document.getElementById('homelink-url-input') as HTMLInputElement | null;
+const homelinkPreviewBtn = document.getElementById('homelink-preview-btn') as HTMLElement | null;
+const homelinkPreviewText = document.getElementById('homelink-preview-text') as HTMLElement | null;
 
 // Toast
 const toastPopup = document.getElementById('toast-popup') as HTMLElement;
@@ -248,6 +272,104 @@ function updateSchoolNameDisplay() {
   }
   if (modalSchoolNameInput && modalSchoolNameInput !== document.activeElement) {
     modalSchoolNameInput.value = schoolName;
+  }
+}
+
+// --- Open Class Home Button & Link Management ---
+function normalizeHomeUrl(raw: string): string {
+  const trimmed = (raw || '').trim();
+  if (!trimmed) return '';
+  if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith('/') || trimmed.startsWith('#')) {
+    return trimmed;
+  }
+  return `https://${trimmed}`;
+}
+
+function loadHomeButtonConfig() {
+  try {
+    const raw = localStorage.getItem(HOME_BUTTON_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      homeButtonConfig = {
+        enabled: parsed.enabled !== false,
+        text: (parsed.text && typeof parsed.text === 'string' && parsed.text.trim()) ? parsed.text.trim() : DEFAULT_HOME_BUTTON_CONFIG.text,
+        url: (parsed.url && typeof parsed.url === 'string') ? parsed.url.trim() : '',
+        target: parsed.target === '_blank' ? '_blank' : '_self'
+      };
+    } else {
+      homeButtonConfig = { ...DEFAULT_HOME_BUTTON_CONFIG };
+    }
+  } catch (e) {
+    homeButtonConfig = { ...DEFAULT_HOME_BUTTON_CONFIG };
+  }
+  updateHomeButtonUI();
+}
+
+function saveHomeButtonConfigLocally() {
+  try {
+    localStorage.setItem(HOME_BUTTON_STORAGE_KEY, JSON.stringify(homeButtonConfig));
+  } catch (e) {
+    console.error('Failed to save home button config to localStorage', e);
+  }
+}
+
+function updateHomeButtonUI() {
+  if (!btnOpenClassHome) return;
+
+  if (homeButtonConfig.enabled === false) {
+    btnOpenClassHome.style.display = 'none';
+  } else {
+    btnOpenClassHome.style.display = 'inline-flex';
+  }
+
+  if (btnOpenClassHomeText) {
+    btnOpenClassHomeText.textContent = homeButtonConfig.text || DEFAULT_HOME_BUTTON_CONFIG.text;
+  }
+
+  const validUrl = normalizeHomeUrl(homeButtonConfig.url);
+  if (validUrl) {
+    btnOpenClassHome.setAttribute('href', validUrl);
+    btnOpenClassHome.setAttribute('target', homeButtonConfig.target || '_self');
+    btnOpenClassHome.setAttribute('rel', 'noopener noreferrer');
+  } else {
+    btnOpenClassHome.setAttribute('href', '#');
+    btnOpenClassHome.setAttribute('target', '_self');
+  }
+}
+
+function updateHomeLinkPreview() {
+  const currentText = (homelinkTextInput?.value || '').trim() || DEFAULT_HOME_BUTTON_CONFIG.text;
+  if (homelinkPreviewText) {
+    homelinkPreviewText.textContent = currentText;
+  }
+  if (homelinkPreviewBtn) {
+    const isEnabled = homelinkEnableCheckbox ? homelinkEnableCheckbox.checked : true;
+    homelinkPreviewBtn.style.opacity = isEnabled ? '1' : '0.35';
+  }
+}
+
+function openHomeLinkModal() {
+  if (!modalHomeLink) return;
+  if (homelinkEnableCheckbox) {
+    homelinkEnableCheckbox.checked = homeButtonConfig.enabled !== false;
+  }
+  if (homelinkTextInput) {
+    homelinkTextInput.value = homeButtonConfig.text || DEFAULT_HOME_BUTTON_CONFIG.text;
+  }
+  if (homelinkUrlInput) {
+    homelinkUrlInput.value = homeButtonConfig.url || '';
+  }
+  const targetRadios = document.querySelectorAll('input[name="homelink-target"]') as NodeListOf<HTMLInputElement>;
+  targetRadios.forEach((r) => {
+    r.checked = r.value === (homeButtonConfig.target || '_self');
+  });
+  updateHomeLinkPreview();
+  modalHomeLink.classList.add('show');
+}
+
+function closeHomeLinkModal() {
+  if (modalHomeLink) {
+    modalHomeLink.classList.remove('show');
   }
 }
 
@@ -569,6 +691,20 @@ btnContinueRegister.addEventListener('click', function () {
   parentForm.style.display = 'flex';
   studentNameInput.focus();
 });
+
+if (btnOpenClassHome) {
+  btnOpenClassHome.addEventListener('click', function (e) {
+    const validUrl = normalizeHomeUrl(homeButtonConfig.url);
+    if (!validUrl) {
+      e.preventDefault();
+      showToast('공개수업 홈 링크가 아직 등록되지 않았습니다. 관리자 페이지에서 이동 URL을 설정해주세요.');
+      return;
+    }
+    // If validUrl is configured, native HTML anchor navigation executes directly!
+    // Since this is a native user click on an <a> element with target="_self" (or _blank with rel="noopener noreferrer"),
+    // mobile browsers and strict corporate/school security settings will NOT trigger any popup blocker warnings!
+  });
+}
 
 // --- 3. Direct Admin Access from Header Button ---
 const handleToggleAdmin = function (e?: Event) {
@@ -1532,6 +1668,71 @@ if (btnCloseGsheetX) {
   });
 }
 
+if (btnCloseHomeLinkX) {
+  btnCloseHomeLinkX.addEventListener('click', closeHomeLinkModal);
+}
+
+if (btnCancelHomeLink) {
+  btnCancelHomeLink.addEventListener('click', closeHomeLinkModal);
+}
+
+if (btnOpenHomeLinkModal) {
+  btnOpenHomeLinkModal.addEventListener('click', openHomeLinkModal);
+}
+
+const btnQuickOpenHomeLink = document.getElementById('btn-quick-open-homelink') as HTMLButtonElement | null;
+if (btnQuickOpenHomeLink) {
+  btnQuickOpenHomeLink.addEventListener('click', () => {
+    closeCapacityModal();
+    openHomeLinkModal();
+  });
+}
+
+if (homelinkTextInput) {
+  homelinkTextInput.addEventListener('input', updateHomeLinkPreview);
+}
+
+if (homelinkEnableCheckbox) {
+  homelinkEnableCheckbox.addEventListener('change', updateHomeLinkPreview);
+}
+
+if (btnSaveHomeLink) {
+  btnSaveHomeLink.addEventListener('click', async function () {
+    const isEnabled = homelinkEnableCheckbox ? homelinkEnableCheckbox.checked : true;
+    const text = (homelinkTextInput?.value || '').trim() || DEFAULT_HOME_BUTTON_CONFIG.text;
+    let url = (homelinkUrlInput?.value || '').trim();
+    if (url) {
+      url = normalizeHomeUrl(url);
+    }
+    let target: '_self' | '_blank' = '_self';
+    const checkedRadio = document.querySelector('input[name="homelink-target"]:checked') as HTMLInputElement | null;
+    if (checkedRadio && checkedRadio.value === '_blank') {
+      target = '_blank';
+    }
+
+    homeButtonConfig = {
+      enabled: isEnabled,
+      text: text,
+      url: url,
+      target: target
+    };
+
+    saveHomeButtonConfigLocally();
+    updateHomeButtonUI();
+    closeHomeLinkModal();
+
+    showToast('공개수업 홈 링크 설정 저장 중...');
+
+    try {
+      await saveSettingDoc('homeButton', homeButtonConfig);
+      showToast('공개수업 홈 링크 설정이 클라우드에 실시간 동기화되었습니다!');
+    } catch (err) {
+      console.warn('Failed to sync homeButton to Firestore', err);
+      showToast('클라우드 저장 실패, 로컬에 임시 저장되었습니다.');
+    }
+  });
+}
+
 // --- 8. Reset All Modal (Single-Step Warning & Direct Deletion) ---
 btnAdminResetAll.addEventListener('click', () => {
   if (resetModalAttendeeCount) {
@@ -1617,6 +1818,8 @@ window.addEventListener('storage', (e) => {
   } else if (e.key === CAPACITY_STORAGE_KEY) {
     loadCapacities();
     renderAdminAll();
+  } else if (e.key === HOME_BUTTON_STORAGE_KEY) {
+    loadHomeButtonConfig();
   } else if (e.key === STORAGE_KEY) {
     loadData();
     renderAdminAll();
@@ -1629,6 +1832,7 @@ loadSchoolName();
 loadClassCounts();
 loadData();
 loadCapacities();
+loadHomeButtonConfig();
 updateClassChipsForGrade(1);
 updateSyncStatus(true, '클라우드 동기화 연결 중...');
 
@@ -1695,6 +1899,17 @@ subscribeSettings((cloudSettings) => {
     classCapacities = cleanCaps;
     saveCapacitiesLocally();
     changed = true;
+  }
+
+  if (cloudSettings.homeButton) {
+    homeButtonConfig = {
+      enabled: cloudSettings.homeButton.enabled !== false,
+      text: (cloudSettings.homeButton.text && typeof cloudSettings.homeButton.text === 'string' && cloudSettings.homeButton.text.trim()) ? cloudSettings.homeButton.text.trim() : DEFAULT_HOME_BUTTON_CONFIG.text,
+      url: (cloudSettings.homeButton.url && typeof cloudSettings.homeButton.url === 'string') ? cloudSettings.homeButton.url.trim() : '',
+      target: cloudSettings.homeButton.target === '_blank' ? '_blank' : '_self'
+    };
+    saveHomeButtonConfigLocally();
+    updateHomeButtonUI();
   }
 
   if (changed) {

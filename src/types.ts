@@ -18,6 +18,13 @@ export interface ClassCapacities {
   };
 }
 
+export interface HomeButtonConfig {
+  enabled: boolean;
+  text: string;
+  url: string;
+  target: '_self' | '_blank';
+}
+
 export enum OperationType {
   CREATE = 'create',
   UPDATE = 'update',
