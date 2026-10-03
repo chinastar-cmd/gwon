@@ -224,6 +224,49 @@
         display: flex;
         align-items: center;
         gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      /* Open Class Home Link Button in Main Header (Placed in front of Admin Mode Button) */
+      .btn-header-home,
+      #btn-open-class-home {
+        background: #2563eb;
+        border: 1.5px solid #1d4ed8;
+        color: #ffffff;
+        padding: 9px 18px;
+        border-radius: var(--radius-sm);
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        text-decoration: none;
+        transition: all 0.15s ease;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
+        box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25);
+      }
+
+      .btn-header-home:hover,
+      #btn-open-class-home:hover {
+        background: #1d4ed8;
+        border-color: #1e40af;
+        color: #ffffff;
+        text-decoration: none;
+        box-shadow: 0 2px 6px rgba(30, 64, 175, 0.35);
+      }
+
+      .btn-header-home:active,
+      #btn-open-class-home:active {
+        transform: translateY(1px);
+        background: #1e40af;
+      }
+
+      .btn-header-home.hidden,
+      #btn-open-class-home.hidden {
+        display: none !important;
       }
 
       /* Always-visible Admin Entry Button */
@@ -256,7 +299,9 @@
         color: #ffffff;
       }
 
-      /* Hide the top header button when in admin mode */
+      /* Hide the top header buttons when in admin mode */
+      body.is-admin-mode #btn-open-class-home,
+      body.is-admin-mode .btn-header-home,
       body.is-admin-mode #btn-toggle-admin-mode,
       .is-admin-mode .btn-admin-access {
         display: none !important;
@@ -624,38 +669,6 @@
         transform: translateY(1px);
       }
 
-      .btn-open-class-home {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        background: #1e40af;
-        color: #ffffff;
-        border: 1px solid #1d4ed8;
-        border-radius: var(--radius-sm);
-        padding: 11px 22px;
-        font-size: 0.94rem;
-        font-weight: 700;
-        cursor: pointer;
-        text-decoration: none;
-        box-shadow: 0 2px 4px rgba(30, 64, 175, 0.2);
-        transition: background 0.15s ease, transform 0.1s ease;
-        -webkit-tap-highlight-color: transparent;
-      }
-
-      .btn-open-class-home:hover {
-        background: #1d4ed8;
-        color: #ffffff;
-        text-decoration: none;
-      }
-
-      .btn-open-class-home:active {
-        transform: translateY(1px);
-      }
-
-      .btn-open-class-home.hidden {
-        display: none !important;
-      }
 
       /* ==================== ADMIN VIEW STYLES ==================== */
       .admin-view-wrap {
@@ -1583,6 +1596,28 @@
           <p id="app-subtitle">공개수업에 참석해주신 학부모님을 환영합니다. 학생 정보를 입력해주세요.</p>
         </div>
         <div class="header-actions">
+          <!-- Open Class Home Link Button (In front of Admin Mode Button) -->
+          <a
+            id="btn-open-class-home"
+            class="btn-header-home"
+            href="#"
+            target="_self"
+            rel="noopener noreferrer"
+            title="공개수업 홈으로 이동"
+          >
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" style="flex-shrink: 0;" aria-hidden="true">
+              <!-- House body with warm tone -->
+              <path d="M12 3L2 11h3v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9h3L12 3z" fill="#fef08a" stroke="#f59e0b" stroke-width="1.8" stroke-linejoin="round"/>
+              <!-- Roof triangle in warm vibrant amber -->
+              <path d="M12 3.5L3.8 10h16.4L12 3.5z" fill="#fbbf24" stroke="#f59e0b" stroke-width="1.2" stroke-linejoin="round"/>
+              <!-- Door in vibrant sky blue -->
+              <rect x="9.5" y="13" width="5" height="7" rx="1" fill="#38bdf8" stroke="#0284c7" stroke-width="1.2"/>
+              <!-- Attic round window in clean white -->
+              <circle cx="12" cy="7.8" r="1.3" fill="#ffffff" stroke="#f59e0b" stroke-width="1"/>
+            </svg>
+            <span id="btn-open-class-home-text">공개수업 홈으로 이동</span>
+          </a>
+
           <!-- Always accessible from Main Header -->
           <button
             type="button"
@@ -1755,28 +1790,12 @@
             <div class="success-complete-desc" id="complete-student-desc">
               공개수업에 방문해 주셔서 감사합니다.<br />지정된 교실로 입장해 주시기 바랍니다.
             </div>
-            <div class="complete-btn-group" id="complete-btn-group">
-              <button type="button" class="btn-continue-register" id="btn-continue-register">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 5v14M5 12h14"></path>
-                </svg>
-                다른 학생 추가 등록하기
-              </button>
-              <a
-                id="btn-open-class-home"
-                class="btn-open-class-home"
-                href="#"
-                target="_self"
-                rel="noopener noreferrer"
-                title="공개수업 홈으로 이동"
-              >
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                  <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                </svg>
-                <span id="btn-open-class-home-text">공개수업 홈으로 이동</span>
-              </a>
-            </div>
+            <button type="button" class="btn-continue-register" id="btn-continue-register">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 5v14M5 12h14"></path>
+              </svg>
+              다른 학생 추가 등록하기
+            </button>
           </div>
         </div>
       </main>
@@ -1804,7 +1823,7 @@
                 </svg>
                 학년별 반 수 및 정원 설정
               </button>
-              <button type="button" class="btn-admin-act" id="btn-open-homelink-modal" style="background:#eff6ff; border-color:#93c5fd; color:#1e40af; font-weight:700;" title="학부모 등록 완료 후 노출되는 '공개수업 홈으로 이동' 버튼의 문구 및 링크 URL 설정">
+              <button type="button" class="btn-admin-act" id="btn-open-homelink-modal" style="background:var(--green-50); border-color:var(--border-color); color:var(--green-700); font-weight:700;" title="메인화면 상단 '공개수업 홈으로 이동' 버튼의 문구 및 링크 URL 설정">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                   <polyline points="9 22 9 12 15 12 15 22"></polyline>
@@ -2135,15 +2154,15 @@
           </div>
 
           <!-- Step 0-1: Open Class Home Link Quick Setup inside Capacity Modal -->
-          <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:var(--radius-sm); padding:10px 14px; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
-            <div style="display:inline-flex; align-items:center; gap:6px; font-weight:700; color:#1e40af; font-size:0.86rem;">
+          <div style="background:var(--green-50); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:10px 14px; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+            <div style="display:inline-flex; align-items:center; gap:6px; font-weight:700; color:var(--green-700); font-size:0.86rem;">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                 <polyline points="9 22 9 12 15 12 15 22"></polyline>
               </svg>
-              <span>등록 완료 화면 '공개수업 홈으로 이동' 버튼 설정:</span>
+              <span>메인 상단 '공개수업 홈으로 이동' 버튼 설정:</span>
             </div>
-            <button type="button" id="btn-quick-open-homelink" style="background:#1d4ed8; color:#fff; border:none; border-radius:4px; padding:6px 12px; font-size:0.82rem; font-weight:700; cursor:pointer;">
+            <button type="button" id="btn-quick-open-homelink" style="background:var(--green-600); color:#fff; border:none; border-radius:4px; padding:6px 12px; font-size:0.82rem; font-weight:700; cursor:pointer;">
               문구 및 링크 URL 설정하기 ➔
             </button>
           </div>
@@ -2274,14 +2293,14 @@
           </div>
 
           <p class="modal-instruction" style="margin-bottom: 16px;">
-            학부모님이 참석자 등록을 마쳤을 때 나오는 <strong>[다른 학생 추가 등록하기]</strong> 버튼 옆에 표시될 <strong>[공개수업 홈으로 이동]</strong> 버튼을 설정합니다.
+            메인화면 상단 [관리자 페이지] 버튼 앞에 배치되는 <strong>[공개수업 홈으로 이동]</strong> 버튼의 문구와 연결 URL을 설정합니다.
           </p>
 
           <!-- Toggle Display Option -->
           <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-sm); padding: 12px 16px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between;">
             <div>
               <div style="font-weight: 700; color: var(--text-dark); font-size: 0.92rem;">홈 이동 버튼 노출 여부</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">참석 등록 완료 화면에 홈 이동 버튼을 표시합니다.</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">메인화면 상단 헤더에 홈 이동 버튼을 표시합니다.</div>
             </div>
             <label style="position: relative; display: inline-flex; align-items: center; cursor: pointer; gap: 8px;">
               <input type="checkbox" id="homelink-enable-checkbox" checked style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--green-600);" />
@@ -2359,21 +2378,24 @@
           <!-- Live Preview Box -->
           <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 16px;">
             <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 8px;">
-              📱 등록 완료 화면 버튼 실시간 미리보기
+              📱 메인화면 상단 헤더 버튼 실시간 미리보기
             </div>
-            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;">
-              <span style="display: inline-flex; align-items: center; gap: 4px; background: var(--green-600); color: #fff; padding: 9px 16px; border-radius: 6px; font-size: 0.86rem; font-weight: 700;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 5v14M5 12h14"></path>
-                </svg>
-                다른 학생 추가 등록하기
-              </span>
-              <span id="homelink-preview-btn" style="display: inline-flex; align-items: center; gap: 5px; background: #1e40af; color: #fff; padding: 9px 16px; border-radius: 6px; font-size: 0.86rem; font-weight: 700; transition: opacity 0.2s ease;">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                  <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;">
+              <span id="homelink-preview-btn" style="display: inline-flex; align-items: center; gap: 6px; background: #2563eb; border: 1.5px solid #1d4ed8; color: #ffffff; padding: 7px 15px; border-radius: 6px; font-size: 0.86rem; font-weight: 700; transition: opacity 0.2s ease; box-shadow: 0 1px 3px rgba(37,99,235,0.25);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="flex-shrink: 0;" aria-hidden="true">
+                  <path d="M12 3L2 11h3v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9h3L12 3z" fill="#fef08a" stroke="#f59e0b" stroke-width="1.8" stroke-linejoin="round"/>
+                  <path d="M12 3.5L3.8 10h16.4L12 3.5z" fill="#fbbf24" stroke="#f59e0b" stroke-width="1.2" stroke-linejoin="round"/>
+                  <rect x="9.5" y="13" width="5" height="7" rx="1" fill="#38bdf8" stroke="#0284c7" stroke-width="1.2"/>
+                  <circle cx="12" cy="7.8" r="1.3" fill="#ffffff" stroke="#f59e0b" stroke-width="1"/>
                 </svg>
                 <span id="homelink-preview-text">공개수업 홈으로 이동</span>
+              </span>
+              <span style="display: inline-flex; align-items: center; gap: 5px; background: var(--green-50); border: 1.5px solid var(--border-color); color: var(--green-700); padding: 7px 14px; border-radius: 6px; font-size: 0.86rem; font-weight: 700;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                <span>관리자 페이지</span>
               </span>
             </div>
           </div>
