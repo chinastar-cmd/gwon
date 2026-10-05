@@ -52,8 +52,8 @@ let attendees: Attendee[] = [];
 let gradeClassCounts: ClassCounts = { ...DEFAULT_CLASS_COUNTS };
 let classCapacities: ClassCapacities = JSON.parse(JSON.stringify(DEFAULT_CAPACITIES));
 let schoolName = '';
-let selectedGradeInForm = 1;
-let selectedClassInForm = 1;
+let selectedGradeInForm: number | null = 1;
+let selectedClassInForm: number | null = 1;
 let isAdminLoggedIn = false;
 
 // DOM Elements
@@ -502,7 +502,26 @@ function getTotalCapacity() {
 }
 
 // --- 1. Dynamic Class Chips Rendering per Grade (Parent Form) ---
-function updateClassChipsForGrade(grade: number) {
+function updateClassChipsForGrade(grade: number | null, preselectClass: number | null = null) {
+  if (!grade || grade < 1 || grade > 3) {
+    if (currentGradeClassInfo) {
+      currentGradeClassInfo.textContent = '학년을 먼저 선택해주세요';
+    }
+    if (!classChipContainer) return;
+    classChipContainer.innerHTML = `
+      <div style="color: var(--text-muted); font-size: 0.88rem; padding: 10px 4px; display: inline-flex; align-items: center; gap: 6px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green-600); flex-shrink: 0;">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <span>위에서 <strong>학년</strong>을 먼저 선택하시면 해당 학년의 반 버튼이 나타납니다.</span>
+      </div>
+    `;
+    selectedClassInForm = null;
+    return;
+  }
+
   const config = GRADE_CONFIG[grade] || GRADE_CONFIG[1];
   const maxClass = (gradeClassCounts[grade] && gradeClassCounts[grade] >= 1) ? gradeClassCounts[grade] : ((config && config.maxClass) || DEFAULT_CLASS_COUNTS[grade] || 8);
   const gradeName = (config && config.name) || `${grade}학년`;
@@ -511,15 +530,19 @@ function updateClassChipsForGrade(grade: number) {
     currentGradeClassInfo.textContent = `${gradeName} 1~${maxClass}반`;
   }
 
-  if (selectedClassInForm > maxClass || selectedClassInForm < 1) {
-    selectedClassInForm = 1;
+  if (preselectClass === null) {
+    selectedClassInForm = null;
+  } else if (preselectClass !== undefined) {
+    selectedClassInForm = preselectClass;
+  } else if (selectedClassInForm !== null && (selectedClassInForm > maxClass || selectedClassInForm < 1)) {
+    selectedClassInForm = null;
   }
 
   if (!classChipContainer) return;
   classChipContainer.innerHTML = '';
   for (let c = 1; c <= maxClass; c++) {
     const label = document.createElement('label');
-    const isChecked = c === selectedClassInForm;
+    const isChecked = selectedClassInForm !== null && c === selectedClassInForm;
 
     label.innerHTML = `
       <input type="radio" name="studentClass" value="${c}" class="choice-hidden" ${isChecked ? 'checked' : ''} />
@@ -547,7 +570,8 @@ if (gradeChipGroup) {
     const target = e.target as HTMLInputElement;
     if (target && target.name === 'studentGrade' && target.checked) {
       selectedGradeInForm = parseInt(target.value, 10);
-      updateClassChipsForGrade(selectedGradeInForm);
+      selectedClassInForm = null;
+      updateClassChipsForGrade(selectedGradeInForm, null);
     }
   });
 }
@@ -557,7 +581,8 @@ gradeRadios.forEach((radio) => {
   radio.addEventListener('change', function (this: HTMLInputElement) {
     if (this.checked) {
       selectedGradeInForm = parseInt(this.value, 10);
-      updateClassChipsForGrade(selectedGradeInForm);
+      selectedClassInForm = null;
+      updateClassChipsForGrade(selectedGradeInForm, null);
     }
   });
 });
@@ -687,9 +712,54 @@ function showCompleteCard(grade: number, cls: number, name: string, relations: s
 }
 
 btnContinueRegister.addEventListener('click', function () {
+  // 1. Hide complete card and display parent form
   successCompleteCard.classList.remove('show');
   parentForm.style.display = 'flex';
-  studentNameInput.focus();
+
+  // 2. Reset Grade selection (uncheck 1·2·3학년 radios and reset state)
+  const gradeRadiosList = document.querySelectorAll('input[name="studentGrade"]') as NodeListOf<HTMLInputElement>;
+  gradeRadiosList.forEach((radio) => {
+    radio.checked = false;
+  });
+  selectedGradeInForm = null;
+
+  // 3. Reset Class selection (clear state and prompt to select grade first)
+  selectedClassInForm = null;
+  updateClassChipsForGrade(null);
+
+  // 4. Reset Student Name Input
+  if (studentNameInput) {
+    studentNameInput.value = '';
+  }
+
+  // 5. Reset Relationship checkboxes (부, 모, 기타)
+  const relationCheckboxes = document.querySelectorAll('input[name="relationType"]') as NodeListOf<HTMLInputElement>;
+  relationCheckboxes.forEach((cb) => {
+    cb.checked = false;
+  });
+  if (otherInputWrap) {
+    otherInputWrap.classList.remove('show');
+  }
+  if (otherDetailText) {
+    otherDetailText.value = '';
+  }
+
+  // 6. Reset any previous error message
+  if (parentFormError) {
+    parentFormError.classList.remove('show');
+    parentFormError.textContent = '';
+  }
+
+  // 7. Smoothly scroll up to the very top of the screen
+  window.scrollTo({
+    top: 0,
+    left: 0,
+    behavior: 'smooth'
+  });
+  const headerElem = document.getElementById('app-header') || document.getElementById('app-wrapper');
+  if (headerElem) {
+    headerElem.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 });
 
 if (btnOpenClassHome) {
@@ -902,11 +972,6 @@ function renderUnifiedMatrixTable() {
   let grandTotalStudents = 0;
   let grandTotalCap = 0;
 
-  const classColumnParents = Array(maxCols + 1).fill(0);
-  const classColumnStudents = Array(maxCols + 1).fill(0);
-  const classColumnCap = Array(maxCols + 1).fill(0);
-  const classColumnHasClass = Array(maxCols + 1).fill(false);
-
   // Deduplicate attendees by student (grade-classNum-name)
   const groupedAttendees = groupAttendees(attendees);
 
@@ -926,7 +991,6 @@ function renderUnifiedMatrixTable() {
 
     for (let c = 1; c <= maxCols; c++) {
       if (c <= numClasses) {
-        classColumnHasClass[c] = true;
         const classGrouped = gradeGrouped.filter((a) => a.classNum === c);
         const pCount = classGrouped.reduce((sum, a) => sum + (a.attendeeCount || 1), 0);
         const sCount = classGrouped.length;
@@ -937,10 +1001,6 @@ function renderUnifiedMatrixTable() {
         gradeParentsSum += pCount;
         gradeStudentsSum += sCount;
         gradeCapSum += cap;
-
-        classColumnParents[c] += pCount;
-        classColumnStudents[c] += sCount;
-        classColumnCap[c] += cap;
 
         trParents += `<td>${pCount > 0 ? `<strong>${pCount}</strong>` : '<span style="color:#b2c3b8;">0</span>'}</td>`;
         trStudents += `<td><span style="font-weight:600; color:${sCount > 0 ? 'var(--text-main)' : '#9eb3a5'}">${sCount}</span><span style="font-size:0.75rem; color:#8fa196;">/${cap}</span></td>`;
@@ -979,61 +1039,33 @@ function renderUnifiedMatrixTable() {
     allGradeMatrixTbody.appendChild(tr3);
   }
 
-  // Grand Total Summary Rows
-  const trTotalParents = document.createElement('tr');
-  trTotalParents.className = 'total-tr';
-  let totalParentsHtml = `<td><strong>전교 총 학부모 수</strong></td>`;
-  for (let c = 1; c <= maxCols; c++) {
-    if (classColumnHasClass[c]) {
-      const sum = classColumnParents[c];
-      totalParentsHtml += `<td>${sum > 0 ? `<strong>${sum}</strong>` : '<span style="color:#b2c3b8;">0</span>'}</td>`;
-    } else {
-      totalParentsHtml += `<td class="td-nonexistent"></td>`;
-    }
-  }
-  totalParentsHtml += `<td style="background:#dbeef0; font-size:0.95rem; font-weight:800; color:var(--green-700);">${grandTotalParents}명</td>`;
-  trTotalParents.innerHTML = totalParentsHtml;
-
-  const trTotalStudents = document.createElement('tr');
-  trTotalStudents.className = 'total-tr';
-  let totalStudentsHtml = `<td><strong style="color:var(--text-muted); font-size:0.82rem;">전교 학생 출석 / 정원</strong></td>`;
-  for (let c = 1; c <= maxCols; c++) {
-    if (classColumnHasClass[c]) {
-      const sSum = classColumnStudents[c];
-      const capSum = classColumnCap[c];
-      totalStudentsHtml += `<td><span style="font-weight:700;">${sSum}</span><span style="font-size:0.75rem; color:#8fa196;">/${capSum}</span></td>`;
-    } else {
-      totalStudentsHtml += `<td class="td-nonexistent"></td>`;
-    }
-  }
-  totalStudentsHtml += `<td style="background:#dbeef0; font-size:0.85rem; font-weight:700; color:var(--green-700);">${grandTotalStudents} / ${grandTotalCap}명</td>`;
-  trTotalStudents.innerHTML = totalStudentsHtml;
-
-  const trTotalRate = document.createElement('tr');
-  trTotalRate.className = 'total-tr';
-  let totalRateHtml = `<td><strong style="color:var(--green-700);">전교 종합 참석률</strong></td>`;
-  for (let c = 1; c <= maxCols; c++) {
-    if (classColumnHasClass[c]) {
-      const sSum = classColumnStudents[c];
-      const capSum = classColumnCap[c];
-      if (capSum > 0) {
-        const colRate = (sSum / capSum) * 100;
-        const badgeClass = getRateBadgeClass(colRate, sSum);
-        totalRateHtml += `<td><span class="rate-badge ${badgeClass}">${colRate.toFixed(1)}%</span></td>`;
-      } else {
-        totalRateHtml += `<td class="td-nonexistent"></td>`;
-      }
-    } else {
-      totalRateHtml += `<td class="td-nonexistent"></td>`;
-    }
-  }
+  // Grand Total Summary Row (3줄 -> 1줄 통합: 1개의 셀에 전교 총 학부모수, 학생 출석/정원, 종합 참석률 배분)
+  const trTotal = document.createElement('tr');
+  trTotal.className = 'total-tr';
   const grandRate = grandTotalCap > 0 ? (grandTotalStudents / grandTotalCap) * 100 : 0;
-  totalRateHtml += `<td style="background:#24583c; color:#ffffff; font-size:0.95rem; font-weight:800;"><span class="rate-badge featured">${grandRate.toFixed(1)}%</span></td>`;
-  trTotalRate.innerHTML = totalRateHtml;
+  trTotal.innerHTML = `
+    <td style="white-space:nowrap; text-align:center;"><strong style="color:var(--green-700); font-size:0.92rem; font-weight:800;">전교 총합계</strong></td>
+    <td colspan="${maxCols + 1}" style="background:#eaf4ed; padding:10px 16px;">
+      <div style="display:flex; align-items:center; justify-content:space-evenly; flex-wrap:wrap; gap:12px 20px; text-align:center;">
+        <div style="display:inline-flex; align-items:center; gap:8px;">
+          <span style="color:var(--text-muted); font-size:0.88rem; font-weight:600;">전교 총 학부모 수:</span>
+          <strong style="color:var(--green-700); font-size:1.02rem; font-weight:800;">${grandTotalParents.toLocaleString()}명</strong>
+        </div>
+        <span style="color:#bddbc8; font-weight:300;" class="total-metric-divider">|</span>
+        <div style="display:inline-flex; align-items:center; gap:8px;">
+          <span style="color:var(--text-muted); font-size:0.88rem; font-weight:600;">전교 학생 출석 / 정원:</span>
+          <strong style="color:var(--green-700); font-size:0.96rem; font-weight:700;">${grandTotalStudents.toLocaleString()} / ${grandTotalCap.toLocaleString()}명</strong>
+        </div>
+        <span style="color:#bddbc8; font-weight:300;" class="total-metric-divider">|</span>
+        <div style="display:inline-flex; align-items:center; gap:8px;">
+          <span style="color:var(--text-muted); font-size:0.88rem; font-weight:600;">전교 종합 참석률:</span>
+          <span class="rate-badge featured" style="font-size:0.92rem; padding:4px 18px; font-weight:800;">${grandRate.toFixed(1)}%</span>
+        </div>
+      </div>
+    </td>
+  `;
 
-  allGradeMatrixTbody.appendChild(trTotalParents);
-  allGradeMatrixTbody.appendChild(trTotalStudents);
-  allGradeMatrixTbody.appendChild(trTotalRate);
+  allGradeMatrixTbody.appendChild(trTotal);
 }
 
 // --- 5. Sort Function: Grade -> Class -> Student Name Korean Alphabetical ---
