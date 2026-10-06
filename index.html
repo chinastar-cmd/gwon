@@ -954,6 +954,245 @@
         font-size: 0.84rem;
       }
 
+      /* D3 Graphical Visualization Section */
+      .chart-tab-group {
+        display: inline-flex;
+        background: #eef5f1;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 2px;
+        gap: 2px;
+      }
+
+      .btn-chart-tab {
+        background: transparent;
+        border: none;
+        padding: 5px 11px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+
+      .btn-chart-tab:hover {
+        color: var(--green-700);
+      }
+
+      .btn-chart-tab.active {
+        background: var(--green-700);
+        color: #ffffff;
+        font-weight: 700;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .chart-grade-filter {
+        display: inline-flex;
+        gap: 4px;
+      }
+
+      .btn-chart-filter {
+        background: #ffffff;
+        border: 1px solid var(--border-color);
+        padding: 4px 9px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+
+      .btn-chart-filter:hover {
+        border-color: var(--green-300);
+        color: var(--green-700);
+      }
+
+      .btn-chart-filter.active {
+        background: var(--green-100);
+        border-color: var(--green-600);
+        color: var(--green-700);
+        font-weight: 700;
+      }
+
+      .chart-summary-bar {
+        display: flex;
+        align-items: stretch;
+        gap: 16px;
+        margin-bottom: 14px;
+        padding: 12px 14px;
+        background: #f7faf8;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-sm);
+        flex-wrap: wrap;
+      }
+
+      .chart-gauge-col {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding-right: 18px;
+        border-right: 1px solid var(--border-color);
+        min-width: 220px;
+      }
+
+      @media (max-width: 768px) {
+        .chart-gauge-col {
+          border-right: none;
+          border-bottom: 1px solid var(--border-color);
+          padding-bottom: 12px;
+          padding-right: 0;
+          width: 100%;
+        }
+      }
+
+      .chart-overall-gauge {
+        width: 76px;
+        height: 76px;
+        flex-shrink: 0;
+      }
+
+      .chart-gauge-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .chart-grade-summary-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 10px;
+        flex: 1;
+      }
+
+      .chart-grade-card {
+        background: #ffffff;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 8px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+
+      .chart-grade-card:hover,
+      .chart-grade-card.active {
+        border-color: var(--green-600);
+        box-shadow: 0 2px 8px rgba(36, 88, 60, 0.08);
+      }
+
+      .chart-grade-card.active {
+        background: #f2f8f4;
+      }
+
+      .chart-grade-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .chart-grade-card-title {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--text-main);
+      }
+
+      .chart-grade-bar-track {
+        height: 6px;
+        background: #eaf1ed;
+        border-radius: 9999px;
+        overflow: hidden;
+        margin: 2px 0;
+      }
+
+      .chart-grade-bar-fill {
+        height: 100%;
+        background: var(--green-600);
+        border-radius: 9999px;
+        transition: width 0.4s ease;
+      }
+
+      .chart-grade-card-sub {
+        font-size: 0.74rem;
+        color: var(--text-sub);
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .chart-canvas-container {
+        position: relative;
+        background: #ffffff;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-sm);
+        padding: 14px 10px 10px 10px;
+        min-height: 330px;
+        overflow: hidden;
+      }
+
+      .d3-chart-tooltip {
+        position: absolute;
+        background: rgba(22, 38, 29, 0.95);
+        color: #ffffff;
+        padding: 9px 13px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        line-height: 1.45;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        pointer-events: none;
+        z-index: 50;
+        transition: opacity 0.12s ease;
+        backdrop-filter: blur(4px);
+      }
+
+      .d3-chart-tooltip .tt-title {
+        font-weight: 700;
+        font-size: 0.86rem;
+        color: #8ce4ad;
+        margin-bottom: 3px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .d3-chart-tooltip .tt-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .chart-legend-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+        font-size: 0.78rem;
+        color: var(--text-muted);
+      }
+
+      .chart-legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .chart-legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 3px;
+        flex-shrink: 0;
+      }
+
+      .chart-legend-line {
+        width: 18px;
+        height: 2px;
+        flex-shrink: 0;
+      }
+
       /* Student Capacity Modal Styles */
       .modal-content.modal-wide {
         max-width: 720px;
@@ -1969,6 +2208,64 @@
                   <span class="admin-stat-unit">건</span>
                 </div>
                 <div class="admin-stat-desc">접수 완료된 누적 등록 건수</div>
+              </div>
+            </div>
+
+            <!-- D3 Graphical Visualization Section: Attendance Rate & Class Participation Trends -->
+            <div class="admin-card" id="admin-chart-card">
+              <div class="admin-card-title">
+                <span style="display:flex; align-items:center; gap:8px;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--green-600)">
+                    <path d="M3 3v18h18"></path>
+                    <path d="M18 17V9"></path>
+                    <path d="M13 17V5"></path>
+                    <path d="M8 17v-3"></path>
+                  </svg>
+                  학급별 참여 추이 및 종합 참석률 통계 차트 (D3 그래픽 시각화)
+                </span>
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                  <!-- View Mode Selector -->
+                  <div class="chart-tab-group" role="tablist">
+                    <button type="button" class="btn-chart-tab active" data-chart-mode="rate" id="tab-chart-rate">참석률 (%) 추이</button>
+                    <button type="button" class="btn-chart-tab" data-chart-mode="count" id="tab-chart-count">참석 학생 vs 정원</button>
+                    <button type="button" class="btn-chart-tab" data-chart-mode="grade" id="tab-chart-grade">학년별 종합 분석</button>
+                  </div>
+                  <!-- Grade Filter -->
+                  <div class="chart-grade-filter" id="chart-grade-filter">
+                    <button type="button" class="btn-chart-filter active" data-grade-filter="all">전체</button>
+                    <button type="button" class="btn-chart-filter" data-grade-filter="1">1학년</button>
+                    <button type="button" class="btn-chart-filter" data-grade-filter="2">2학년</button>
+                    <button type="button" class="btn-chart-filter" data-grade-filter="3">3학년</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Top Visual Metrics Summary Bar (Overall Rate Radial/Donut Gauge + Key Trends) -->
+              <div class="chart-summary-bar" id="chart-summary-bar">
+                <div class="chart-gauge-col">
+                  <div id="chart-overall-gauge" class="chart-overall-gauge"></div>
+                  <div class="chart-gauge-meta">
+                    <div style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">전교 종합 실시간 참석률</div>
+                    <div style="font-size:1.4rem; font-weight:800; color:var(--green-700);" id="chart-gauge-rate-text">0.0%</div>
+                    <div style="font-size:0.75rem; color:var(--text-sub);" id="chart-gauge-sub-text">참석 0명 / 정원 675명</div>
+                  </div>
+                </div>
+                <!-- Grade-by-grade Progress Cards -->
+                <div class="chart-grade-summary-cards" id="chart-grade-summary-cards">
+                  <!-- Dynamically populated for Grades 1, 2, 3 with mini bars and stats -->
+                </div>
+              </div>
+
+              <!-- Main D3 Chart Canvas Area -->
+              <div class="chart-canvas-container" id="chart-canvas-container">
+                <div id="d3-trend-chart" style="width:100%; min-height:320px; position:relative;"></div>
+                <!-- D3 Tooltip Element -->
+                <div id="d3-chart-tooltip" class="d3-chart-tooltip" style="opacity:0; pointer-events:none; position:absolute; z-index:100;"></div>
+              </div>
+
+              <!-- Chart Legend & Helper Guide -->
+              <div class="chart-legend-row" id="chart-legend-row">
+                <!-- Dynamically populated legend according to active tab mode -->
               </div>
             </div>
 

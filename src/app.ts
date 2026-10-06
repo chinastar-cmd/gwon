@@ -11,6 +11,7 @@ import {
   getFirestoreConfigInfo
 } from './firebase';
 import { Attendee, ClassCounts, ClassCapacities, HomeButtonConfig } from './types';
+import * as d3 from 'd3';
 
 // Constants: Middle school grade class counts
 const DEFAULT_CLASS_COUNTS: ClassCounts = {
@@ -115,6 +116,18 @@ const btnExportStatsCsv = document.getElementById('btn-export-stats-csv') as HTM
 const btnExportPdf = document.getElementById('btn-export-pdf') as HTMLButtonElement | null;
 const btnSampleData = document.getElementById('btn-sample-data') as HTMLButtonElement;
 const btnAdminResetAll = document.getElementById('btn-admin-reset-all') as HTMLButtonElement;
+
+// D3 Graphical Visualization Elements & State
+const chartOverallGauge = document.getElementById('chart-overall-gauge') as HTMLElement | null;
+const chartGaugeRateText = document.getElementById('chart-gauge-rate-text') as HTMLElement | null;
+const chartGaugeSubText = document.getElementById('chart-gauge-sub-text') as HTMLElement | null;
+const chartGradeSummaryCards = document.getElementById('chart-grade-summary-cards') as HTMLElement | null;
+const d3TrendChart = document.getElementById('d3-trend-chart') as HTMLElement | null;
+const d3ChartTooltip = document.getElementById('d3-chart-tooltip') as HTMLElement | null;
+const chartLegendRow = document.getElementById('chart-legend-row') as HTMLElement | null;
+
+let activeChartMode: 'rate' | 'count' | 'grade' = 'rate';
+let activeChartGradeFilter: 'all' | 1 | 2 | 3 = 'all';
 
 // Modals
 const modalPassword = document.getElementById('modal-password') as HTMLElement;
@@ -910,6 +923,7 @@ function switchToParentView() {
 // --- 4. Admin View Renderers ---
 function renderAdminAll() {
   renderAdminStats();
+  renderAdminCharts();
   renderUnifiedMatrixTable();
   renderAdminAttendeesTable();
 }
@@ -952,6 +966,690 @@ function getRateBadgeClass(rate: number, count: number) {
   if (rate >= 70) return 'high';
   if (rate >= 30) return 'mid';
   return 'low';
+}
+
+// --- D3 Graphical Visualization: Attendance Rate & Class Participation Trends ---
+interface ClassChartItem {
+  grade: number;
+  classNum: number;
+  label: string; // e.g. "1-1"
+  fullLabel: string; // e.g. "1학년 1반"
+  uniqueStudents: number;
+  capacity: number;
+  rate: number;
+  parents: number;
+}
+
+function renderAdminCharts() {
+  if (!d3TrendChart) return;
+
+  const grouped = groupAttendees(attendees);
+  const totalAtt = grouped.reduce((sum, g) => sum + (g.attendeeCount || 1), 0);
+  const uniqueCount = grouped.length;
+  const totalCap = getTotalCapacity();
+  const overallRate = totalCap > 0 ? (uniqueCount / totalCap) * 100 : 0;
+
+  // 1. Overall Donut Gauge (실시간 전교 종합 참석률)
+  if (chartOverallGauge) {
+    chartOverallGauge.innerHTML = '';
+    const size = 76;
+    const radius = size / 2;
+    const strokeWidth = 9;
+
+    const svgGauge = d3.select(chartOverallGauge)
+      .append('svg')
+      .attr('width', size)
+      .attr('height', size)
+      .append('g')
+      .attr('transform', `translate(${radius}, ${radius})`);
+
+    const bgArc = d3.arc<any>()
+      .innerRadius(radius - strokeWidth)
+      .outerRadius(radius)
+      .startAngle(0)
+      .endAngle(2 * Math.PI);
+
+    svgGauge.append('path')
+      .attr('d', bgArc({} as any))
+      .attr('fill', '#e2ede6');
+
+    const progressAngle = Math.min(2 * Math.PI, Math.max(0, (overallRate / 100) * 2 * Math.PI));
+    const fgArc = d3.arc<any>()
+      .innerRadius(radius - strokeWidth)
+      .outerRadius(radius)
+      .startAngle(0)
+      .endAngle(progressAngle)
+      .cornerRadius(4);
+
+    svgGauge.append('path')
+      .attr('d', fgArc({} as any))
+      .attr('fill', overallRate >= 70 ? '#1b5e37' : overallRate >= 30 ? '#2e7d4f' : '#e0823d');
+
+    svgGauge.append('text')
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'central')
+      .attr('fill', '#1d2d23')
+      .attr('font-size', '12px')
+      .attr('font-weight', '800')
+      .text(`${overallRate.toFixed(1)}%`);
+  }
+
+  if (chartGaugeRateText) {
+    chartGaugeRateText.textContent = `${overallRate.toFixed(1)}%`;
+  }
+  if (chartGaugeSubText) {
+    chartGaugeSubText.textContent = `참석 ${uniqueCount.toLocaleString()}명 / 정원 ${totalCap.toLocaleString()}명`;
+  }
+
+  // 2. Grade-by-grade Summary Progress Cards
+  const gradeStats: { [g: number]: { students: number; capacity: number; rate: number; parents: number } } = {};
+  for (let g = 1; g <= 3; g++) {
+    const numClasses = gradeClassCounts[g] || 0;
+    const gradeGrouped = grouped.filter(a => a.grade === g);
+    const students = gradeGrouped.length;
+    let capSum = 0;
+    for (let c = 1; c <= numClasses; c++) {
+      capSum += (classCapacities[g] && classCapacities[g][c]) || 25;
+    }
+    const rate = capSum > 0 ? (students / capSum) * 100 : 0;
+    const parents = gradeGrouped.reduce((sum, a) => sum + (a.attendeeCount || 1), 0);
+    gradeStats[g] = { students, capacity: capSum, rate, parents };
+  }
+
+  if (chartGradeSummaryCards) {
+    let cardsHtml = '';
+    for (let g = 1; g <= 3; g++) {
+      const stat = gradeStats[g];
+      const isSelected = activeChartGradeFilter === g;
+      const badgeClass = getRateBadgeClass(stat.rate, stat.students);
+      cardsHtml += `
+        <div class="chart-grade-card ${isSelected ? 'active' : ''}" data-click-grade="${g}" title="${g}학년 차트 필터링 (클릭하여 선택/해제)">
+          <div class="chart-grade-card-header">
+            <span class="chart-grade-card-title">${g}학년</span>
+            <span class="rate-badge ${badgeClass}">${stat.rate.toFixed(1)}%</span>
+          </div>
+          <div class="chart-grade-bar-track">
+            <div class="chart-grade-bar-fill" style="width:${Math.min(100, stat.rate)}%; background:${stat.rate >= 70 ? 'var(--green-700)' : stat.rate >= 30 ? 'var(--green-500)' : '#f59e0b'};"></div>
+          </div>
+          <div class="chart-grade-card-sub">
+            <span>참석 <strong>${stat.students}</strong>명</span>
+            <span>정원 ${stat.capacity}명</span>
+          </div>
+        </div>
+      `;
+    }
+    chartGradeSummaryCards.innerHTML = cardsHtml;
+
+    chartGradeSummaryCards.querySelectorAll<HTMLElement>('.chart-grade-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const gStr = card.getAttribute('data-click-grade');
+        if (gStr) {
+          const g = parseInt(gStr, 10) as 1 | 2 | 3;
+          activeChartGradeFilter = activeChartGradeFilter === g ? 'all' : g;
+          document.querySelectorAll('.btn-chart-filter').forEach(btn => {
+            const f = btn.getAttribute('data-grade-filter');
+            btn.classList.toggle('active', f === String(activeChartGradeFilter));
+          });
+          renderAdminCharts();
+        }
+      });
+    });
+  }
+
+  // 3. Prepare Class Data
+  const classData: ClassChartItem[] = [];
+  for (let g = 1; g <= 3; g++) {
+    if (activeChartGradeFilter !== 'all' && activeChartGradeFilter !== g) continue;
+    const numClasses = gradeClassCounts[g] || 0;
+    const gradeGrouped = grouped.filter(a => a.grade === g);
+    for (let c = 1; c <= numClasses; c++) {
+      const classGrouped = gradeGrouped.filter(a => a.classNum === c);
+      const sCount = classGrouped.length;
+      const cap = (classCapacities[g] && classCapacities[g][c]) || 25;
+      const rate = cap > 0 ? (sCount / cap) * 100 : 0;
+      const pCount = classGrouped.reduce((sum, a) => sum + (a.attendeeCount || 1), 0);
+      classData.push({
+        grade: g,
+        classNum: c,
+        label: `${g}-${c}`,
+        fullLabel: `${g}학년 ${c}반`,
+        uniqueStudents: sCount,
+        capacity: cap,
+        rate,
+        parents: pCount
+      });
+    }
+  }
+
+  // Clear previous SVG
+  d3TrendChart.innerHTML = '';
+
+  const containerRect = d3TrendChart.getBoundingClientRect();
+  const width = Math.max(380, containerRect.width || 720);
+  const height = 310;
+  const margin = { top: 32, right: 30, bottom: 44, left: 45 };
+  const innerWidth = width - margin.left - margin.right;
+  const innerHeight = height - margin.top - margin.bottom;
+
+  const svg = d3.select(d3TrendChart)
+    .append('svg')
+    .attr('width', '100%')
+    .attr('height', height)
+    .attr('viewBox', `0 0 ${width} ${height}`)
+    .style('overflow', 'visible')
+    .style('display', 'block');
+
+  const g = svg.append('g')
+    .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+  // Tooltip Helper
+  const showTooltip = (event: MouseEvent, html: string) => {
+    if (!d3ChartTooltip || !d3TrendChart) return;
+    d3ChartTooltip.innerHTML = html;
+    d3ChartTooltip.style.opacity = '1';
+
+    const parentRect = d3TrendChart.getBoundingClientRect();
+    const tooltipWidth = 185;
+    let left = event.clientX - parentRect.left + 12;
+    if (left + tooltipWidth > parentRect.width) {
+      left = event.clientX - parentRect.left - tooltipWidth - 12;
+    }
+    const top = Math.max(10, event.clientY - parentRect.top - 40);
+    d3ChartTooltip.style.left = `${left}px`;
+    d3ChartTooltip.style.top = `${top}px`;
+  };
+
+  const hideTooltip = () => {
+    if (d3ChartTooltip) d3ChartTooltip.style.opacity = '0';
+  };
+
+  // --- RENDER ACCORDING TO ACTIVE MODE ---
+  if (activeChartMode === 'rate') {
+    // MODE: Attendance Rate (%) Trends with Bar + Monotone Cubic Spline Line
+    const xScale = d3.scaleBand()
+      .domain(classData.map(d => d.label))
+      .range([0, innerWidth])
+      .padding(classData.length > 15 ? 0.22 : 0.35);
+
+    const maxRate = Math.max(100, (d3.max(classData, d => d.rate) || 0) + 10);
+    const yScale = d3.scaleLinear()
+      .domain([0, maxRate])
+      .range([innerHeight, 0])
+      .nice();
+
+    // Horizontal grid lines
+    const yTicks = [25, 50, 75, 100];
+    g.append('g')
+      .selectAll('line.grid-line')
+      .data(yTicks.filter(t => t <= maxRate))
+      .enter()
+      .append('line')
+      .attr('class', 'grid-line')
+      .attr('x1', 0)
+      .attr('x2', innerWidth)
+      .attr('y1', d => yScale(d))
+      .attr('y2', d => yScale(d))
+      .attr('stroke', '#e4eee6')
+      .attr('stroke-dasharray', '3 3')
+      .attr('stroke-width', 1);
+
+    // School Average Reference Line
+    if (overallRate > 0) {
+      const avgY = yScale(overallRate);
+      g.append('line')
+        .attr('x1', 0)
+        .attr('x2', innerWidth)
+        .attr('y1', avgY)
+        .attr('y2', avgY)
+        .attr('stroke', '#d97706')
+        .attr('stroke-dasharray', '5 4')
+        .attr('stroke-width', 1.8)
+        .attr('opacity', 0.9);
+
+      g.append('text')
+        .attr('x', innerWidth)
+        .attr('y', avgY - 6)
+        .attr('text-anchor', 'end')
+        .attr('fill', '#b45309')
+        .attr('font-size', '10.5px')
+        .attr('font-weight', '700')
+        .text(`전교 평균 ${overallRate.toFixed(1)}%`);
+    }
+
+    // X Axis
+    const xAxis = d3.axisBottom(xScale);
+    g.append('g')
+      .attr('transform', `translate(0, ${innerHeight})`)
+      .call(xAxis)
+      .selectAll('text')
+      .attr('fill', '#4b5563')
+      .attr('font-size', classData.length > 20 ? '9.5px' : '11px')
+      .attr('font-weight', '600');
+
+    // Y Axis
+    const yAxis = d3.axisLeft(yScale)
+      .ticks(5)
+      .tickFormat(d => `${d}%`);
+    g.append('g')
+      .call(yAxis)
+      .selectAll('text')
+      .attr('fill', '#4b5563')
+      .attr('font-size', '11px');
+
+    // Attendance Rate Bars
+    g.selectAll('rect.rate-bar')
+      .data(classData)
+      .enter()
+      .append('rect')
+      .attr('class', 'rate-bar')
+      .attr('x', d => xScale(d.label) || 0)
+      .attr('y', d => yScale(d.rate))
+      .attr('width', xScale.bandwidth())
+      .attr('height', d => Math.max(0, innerHeight - yScale(d.rate)))
+      .attr('rx', 3)
+      .attr('fill', d => {
+        if (d.rate === 0) return '#cbd5e1';
+        if (d.rate >= 70) return '#24583c';
+        if (d.rate >= 40) return '#3b8259';
+        return '#78a88a';
+      })
+      .attr('opacity', 0.88)
+      .style('cursor', 'pointer')
+      .on('mouseenter', function(event, d) {
+        d3.select(this).attr('opacity', 1).attr('stroke', '#1a3c2a').attr('stroke-width', 1.5);
+        showTooltip(event, `
+          <div class="tt-title"><span>🏫</span> ${d.fullLabel}</div>
+          <div class="tt-row"><span>참석률:</span> <strong>${d.rate.toFixed(1)}%</strong></div>
+          <div class="tt-row"><span>참석 학생:</span> <strong>${d.uniqueStudents}명</strong> / ${d.capacity}명</div>
+          <div class="tt-row"><span>학부모 방문:</span> <strong>${d.parents}명</strong></div>
+        `);
+      })
+      .on('mousemove', function(event, d) {
+        showTooltip(event, `
+          <div class="tt-title"><span>🏫</span> ${d.fullLabel}</div>
+          <div class="tt-row"><span>참석률:</span> <strong>${d.rate.toFixed(1)}%</strong></div>
+          <div class="tt-row"><span>참석 학생:</span> <strong>${d.uniqueStudents}명</strong> / ${d.capacity}명</div>
+          <div class="tt-row"><span>학부모 방문:</span> <strong>${d.parents}명</strong></div>
+        `);
+      })
+      .on('mouseleave', function() {
+        d3.select(this).attr('opacity', 0.88).attr('stroke', 'none');
+        hideTooltip();
+      });
+
+    // Trend Curve Line
+    if (classData.length > 1) {
+      const lineGen = d3.line<ClassChartItem>()
+        .x(d => (xScale(d.label) || 0) + xScale.bandwidth() / 2)
+        .y(d => yScale(d.rate))
+        .curve(d3.curveMonotoneX);
+
+      g.append('path')
+        .datum(classData)
+        .attr('d', lineGen)
+        .attr('fill', 'none')
+        .attr('stroke', '#0f291e')
+        .attr('stroke-width', 2.2)
+        .attr('opacity', 0.85);
+
+      // Trend Dots
+      g.selectAll('circle.trend-dot')
+        .data(classData)
+        .enter()
+        .append('circle')
+        .attr('class', 'trend-dot')
+        .attr('cx', d => (xScale(d.label) || 0) + xScale.bandwidth() / 2)
+        .attr('cy', d => yScale(d.rate))
+        .attr('r', classData.length > 15 ? 3.5 : 4.5)
+        .attr('fill', '#ffffff')
+        .attr('stroke', '#0f291e')
+        .attr('stroke-width', 2)
+        .style('cursor', 'pointer')
+        .on('mouseenter', function(event, d) {
+          d3.select(this).attr('r', 6).attr('fill', '#34d399');
+          showTooltip(event, `
+            <div class="tt-title"><span>📈</span> ${d.fullLabel} 참여 추세</div>
+            <div class="tt-row"><span>참석률:</span> <strong>${d.rate.toFixed(1)}%</strong></div>
+            <div class="tt-row"><span>참석 학생:</span> <strong>${d.uniqueStudents}명</strong> / ${d.capacity}명</div>
+            <div class="tt-row"><span>학부모 방문:</span> <strong>${d.parents}명</strong></div>
+          `);
+        })
+        .on('mousemove', function(event, d) {
+          showTooltip(event, `
+            <div class="tt-title"><span>📈</span> ${d.fullLabel} 참여 추세</div>
+            <div class="tt-row"><span>참석률:</span> <strong>${d.rate.toFixed(1)}%</strong></div>
+            <div class="tt-row"><span>참석 학생:</span> <strong>${d.uniqueStudents}명</strong> / ${d.capacity}명</div>
+            <div class="tt-row"><span>학부모 방문:</span> <strong>${d.parents}명</strong></div>
+          `);
+        })
+        .on('mouseleave', function() {
+          d3.select(this).attr('r', classData.length > 15 ? 3.5 : 4.5).attr('fill', '#ffffff');
+          hideTooltip();
+        });
+    }
+
+    // Value Labels on Top of Bars
+    g.selectAll('text.bar-label')
+      .data(classData)
+      .enter()
+      .append('text')
+      .attr('class', 'bar-label')
+      .attr('x', d => (xScale(d.label) || 0) + xScale.bandwidth() / 2)
+      .attr('y', d => yScale(d.rate) - (classData.length > 1 ? 10 : 6))
+      .attr('text-anchor', 'middle')
+      .attr('font-size', classData.length > 20 ? '8.5px' : '9.5px')
+      .attr('font-weight', '700')
+      .attr('fill', d => d.rate > 0 ? '#1d2d23' : '#94a3b8')
+      .text(d => d.rate > 0 ? `${Math.round(d.rate)}%` : '0');
+
+    // Update Legend
+    if (chartLegendRow) {
+      chartLegendRow.innerHTML = `
+        <div class="chart-legend-item"><span class="chart-legend-color" style="background:#24583c;"></span>고참석률 (70% 이상)</div>
+        <div class="chart-legend-item"><span class="chart-legend-color" style="background:#3b8259;"></span>중간 (40%~69%)</div>
+        <div class="chart-legend-item"><span class="chart-legend-color" style="background:#78a88a;"></span>저참석 (40% 미만)</div>
+        <div class="chart-legend-item"><span class="chart-legend-color" style="background:#cbd5e1;"></span>미등록 (0명)</div>
+        <div class="chart-legend-item"><span class="chart-legend-line" style="border-top:2px dashed #d97706;"></span>전교 평균 참석률 (${overallRate.toFixed(1)}%)</div>
+        <div class="chart-legend-item"><span class="chart-legend-line" style="border-top:2px solid #0f291e;"></span>참여 추세 곡선</div>
+      `;
+    }
+
+  } else if (activeChartMode === 'count') {
+    // MODE: Attending Students vs Capacity Comparison (Bullet Bars)
+    const xScale = d3.scaleBand()
+      .domain(classData.map(d => d.label))
+      .range([0, innerWidth])
+      .padding(classData.length > 15 ? 0.22 : 0.32);
+
+    const maxCap = Math.max(25, (d3.max(classData, d => Math.max(d.capacity, d.uniqueStudents)) || 25) + 5);
+    const yScale = d3.scaleLinear()
+      .domain([0, maxCap])
+      .range([innerHeight, 0])
+      .nice();
+
+    // Horizontal grid lines
+    g.append('g')
+      .selectAll('line.grid-line')
+      .data(yScale.ticks(5))
+      .enter()
+      .append('line')
+      .attr('class', 'grid-line')
+      .attr('x1', 0)
+      .attr('x2', innerWidth)
+      .attr('y1', d => yScale(d))
+      .attr('y2', d => yScale(d))
+      .attr('stroke', '#e4eee6')
+      .attr('stroke-dasharray', '3 3')
+      .attr('stroke-width', 1);
+
+    // X Axis
+    g.append('g')
+      .attr('transform', `translate(0, ${innerHeight})`)
+      .call(d3.axisBottom(xScale))
+      .selectAll('text')
+      .attr('fill', '#4b5563')
+      .attr('font-size', classData.length > 20 ? '9.5px' : '11px')
+      .attr('font-weight', '600');
+
+    // Y Axis
+    g.append('g')
+      .call(d3.axisLeft(yScale).ticks(5).tickFormat(d => `${d}명`))
+      .selectAll('text')
+      .attr('fill', '#4b5563')
+      .attr('font-size', '11px');
+
+    // 1) Capacity Background Bars (Total student capacity)
+    g.selectAll('rect.cap-bar')
+      .data(classData)
+      .enter()
+      .append('rect')
+      .attr('class', 'cap-bar')
+      .attr('x', d => xScale(d.label) || 0)
+      .attr('y', d => yScale(d.capacity))
+      .attr('width', xScale.bandwidth())
+      .attr('height', d => Math.max(0, innerHeight - yScale(d.capacity)))
+      .attr('rx', 4)
+      .attr('fill', '#edf5f0')
+      .attr('stroke', '#c8e0d2')
+      .attr('stroke-width', 1.2);
+
+    // 2) Attended Students Bars (Students currently registered)
+    g.selectAll('rect.student-bar')
+      .data(classData)
+      .enter()
+      .append('rect')
+      .attr('class', 'student-bar')
+      .attr('x', d => xScale(d.label) || 0)
+      .attr('y', d => yScale(d.uniqueStudents))
+      .attr('width', xScale.bandwidth())
+      .attr('height', d => Math.max(0, innerHeight - yScale(d.uniqueStudents)))
+      .attr('rx', 4)
+      .attr('fill', '#2d6a4f')
+      .attr('opacity', 0.9)
+      .style('cursor', 'pointer')
+      .on('mouseenter', function(event, d) {
+        d3.select(this).attr('opacity', 1).attr('fill', '#1b4332');
+        showTooltip(event, `
+          <div class="tt-title"><span>👥</span> ${d.fullLabel} 출석 현황</div>
+          <div class="tt-row"><span>참석 학생:</span> <strong>${d.uniqueStudents}명</strong> / 정원 ${d.capacity}명</div>
+          <div class="tt-row"><span>참석률:</span> <strong>${d.rate.toFixed(1)}%</strong></div>
+          <div class="tt-row"><span>학부모 방문:</span> <strong>${d.parents}명</strong></div>
+        `);
+      })
+      .on('mousemove', function(event, d) {
+        showTooltip(event, `
+          <div class="tt-title"><span>👥</span> ${d.fullLabel} 출석 현황</div>
+          <div class="tt-row"><span>참석 학생:</span> <strong>${d.uniqueStudents}명</strong> / 정원 ${d.capacity}명</div>
+          <div class="tt-row"><span>참석률:</span> <strong>${d.rate.toFixed(1)}%</strong></div>
+          <div class="tt-row"><span>학부모 방문:</span> <strong>${d.parents}명</strong></div>
+        `);
+      })
+      .on('mouseleave', function() {
+        d3.select(this).attr('opacity', 0.9).attr('fill', '#2d6a4f');
+        hideTooltip();
+      });
+
+    // Top Label: Attendance count over capacity
+    g.selectAll('text.count-label')
+      .data(classData)
+      .enter()
+      .append('text')
+      .attr('class', 'count-label')
+      .attr('x', d => (xScale(d.label) || 0) + xScale.bandwidth() / 2)
+      .attr('y', d => yScale(Math.max(d.capacity, d.uniqueStudents)) - 6)
+      .attr('text-anchor', 'middle')
+      .attr('font-size', classData.length > 20 ? '8px' : '9.5px')
+      .attr('font-weight', '700')
+      .attr('fill', '#1b4332')
+      .text(d => `${d.uniqueStudents}/${d.capacity}`);
+
+    // Update Legend
+    if (chartLegendRow) {
+      chartLegendRow.innerHTML = `
+        <div class="chart-legend-item"><span class="chart-legend-color" style="background:#2d6a4f;"></span>참석 학생 수 (가구수)</div>
+        <div class="chart-legend-item"><span class="chart-legend-color" style="background:#edf5f0; border:1px solid #c8e0d2;"></span>학급 학생 정원</div>
+        <div class="chart-legend-item" style="color:var(--text-sub);">💡 막대를 마우스로 가리키면 세부 학생 및 학부모 참석 인원이 표시됩니다.</div>
+      `;
+    }
+
+  } else if (activeChartMode === 'grade') {
+    // MODE: Grade-by-grade Comprehensive Comparative Analysis
+    const gradeData = [1, 2, 3].map(g => {
+      const stat = gradeStats[g];
+      return {
+        grade: g,
+        label: `${g}학년`,
+        students: stat.students,
+        capacity: stat.capacity,
+        rate: stat.rate,
+        parents: stat.parents
+      };
+    });
+
+    const x0 = d3.scaleBand()
+      .domain(gradeData.map(d => d.label))
+      .range([0, innerWidth])
+      .padding(0.3);
+
+    const subKeys = ['capacity', 'students', 'parents'];
+    const x1 = d3.scaleBand()
+      .domain(subKeys)
+      .range([0, x0.bandwidth()])
+      .padding(0.08);
+
+    const maxVal = Math.max(100, (d3.max(gradeData, d => Math.max(d.capacity, d.students, d.parents)) || 100) + 20);
+    const yScale = d3.scaleLinear()
+      .domain([0, maxVal])
+      .range([innerHeight, 0])
+      .nice();
+
+    // Horizontal grid lines
+    g.append('g')
+      .selectAll('line.grid-line')
+      .data(yScale.ticks(5))
+      .enter()
+      .append('line')
+      .attr('class', 'grid-line')
+      .attr('x1', 0)
+      .attr('x2', innerWidth)
+      .attr('y1', d => yScale(d))
+      .attr('y2', d => yScale(d))
+      .attr('stroke', '#e4eee6')
+      .attr('stroke-dasharray', '3 3')
+      .attr('stroke-width', 1);
+
+    // X Axis
+    g.append('g')
+      .attr('transform', `translate(0, ${innerHeight})`)
+      .call(d3.axisBottom(x0))
+      .selectAll('text')
+      .attr('fill', '#1d2d23')
+      .attr('font-size', '13px')
+      .attr('font-weight', '700');
+
+    // Y Axis
+    g.append('g')
+      .call(d3.axisLeft(yScale).ticks(5).tickFormat(d => `${d}명`))
+      .selectAll('text')
+      .attr('fill', '#4b5563')
+      .attr('font-size', '11px');
+
+    const colorMap: { [key: string]: string } = {
+      capacity: '#d8e8dc',
+      students: '#24583c',
+      parents: '#2563eb'
+    };
+
+    // Render grouped bars
+    const gradeGroups = g.selectAll('g.grade-group')
+      .data(gradeData)
+      .enter()
+      .append('g')
+      .attr('class', 'grade-group')
+      .attr('transform', d => `translate(${x0(d.label)}, 0)`);
+
+    subKeys.forEach(key => {
+      gradeGroups.append('rect')
+        .attr('x', x1(key) || 0)
+        .attr('y', d => yScale(d[key as keyof typeof d] as number))
+        .attr('width', x1.bandwidth())
+        .attr('height', d => Math.max(0, innerHeight - yScale(d[key as keyof typeof d] as number)))
+        .attr('rx', 4)
+        .attr('fill', colorMap[key])
+        .attr('opacity', 0.92)
+        .style('cursor', 'pointer')
+        .on('mouseenter', function(event, d) {
+          d3.select(this).attr('opacity', 1);
+          showTooltip(event, `
+            <div class="tt-title"><span>🎓</span> ${d.label} 통계 상세</div>
+            <div class="tt-row"><span>총 학생 정원:</span> <strong>${d.capacity}명</strong></div>
+            <div class="tt-row"><span>참석 학생 수:</span> <strong>${d.students}명</strong></div>
+            <div class="tt-row"><span>참석률:</span> <strong>${d.rate.toFixed(1)}%</strong></div>
+            <div class="tt-row"><span>참석 학부모 수:</span> <strong>${d.parents}명</strong></div>
+          `);
+        })
+        .on('mousemove', function(event, d) {
+          showTooltip(event, `
+            <div class="tt-title"><span>🎓</span> ${d.label} 통계 상세</div>
+            <div class="tt-row"><span>총 학생 정원:</span> <strong>${d.capacity}명</strong></div>
+            <div class="tt-row"><span>참석 학생 수:</span> <strong>${d.students}명</strong></div>
+            <div class="tt-row"><span>참석률:</span> <strong>${d.rate.toFixed(1)}%</strong></div>
+            <div class="tt-row"><span>참석 학부모 수:</span> <strong>${d.parents}명</strong></div>
+          `);
+        })
+        .on('mouseleave', function() {
+          d3.select(this).attr('opacity', 0.92);
+          hideTooltip();
+        });
+
+      // Bar Value Labels
+      gradeGroups.append('text')
+        .attr('x', (x1(key) || 0) + x1.bandwidth() / 2)
+        .attr('y', d => yScale(d[key as keyof typeof d] as number) - 5)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '10.5px')
+        .attr('font-weight', '700')
+        .attr('fill', key === 'capacity' ? '#4b5563' : colorMap[key])
+        .text(d => `${d[key as keyof typeof d]}명`);
+    });
+
+    // Rate badge on top of each grade group
+    gradeGroups.append('text')
+      .attr('x', x0.bandwidth() / 2)
+      .attr('y', -12)
+      .attr('text-anchor', 'middle')
+      .attr('font-size', '12px')
+      .attr('font-weight', '800')
+      .attr('fill', '#1b4332')
+      .text(d => `참석률 ${d.rate.toFixed(1)}%`);
+
+    // Update Legend
+    if (chartLegendRow) {
+      chartLegendRow.innerHTML = `
+        <div class="chart-legend-item"><span class="chart-legend-color" style="background:#d8e8dc;"></span>총 학생 정원</div>
+        <div class="chart-legend-item"><span class="chart-legend-color" style="background:#24583c;"></span>참석 학생 수 (가구수)</div>
+        <div class="chart-legend-item"><span class="chart-legend-color" style="background:#2563eb;"></span>참석 학부모 수</div>
+      `;
+    }
+  }
+}
+
+function initChartControls() {
+  const modeTabs = document.querySelectorAll<HTMLButtonElement>('.btn-chart-tab');
+  modeTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const mode = tab.getAttribute('data-chart-mode') as 'rate' | 'count' | 'grade';
+      if (mode) {
+        activeChartMode = mode;
+        modeTabs.forEach(t => t.classList.toggle('active', t === tab));
+        renderAdminCharts();
+      }
+    });
+  });
+
+  const filterBtns = document.querySelectorAll<HTMLButtonElement>('.btn-chart-filter');
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const filter = btn.getAttribute('data-grade-filter');
+      if (filter === 'all') {
+        activeChartGradeFilter = 'all';
+      } else if (filter) {
+        activeChartGradeFilter = parseInt(filter, 10) as 1 | 2 | 3;
+      }
+      filterBtns.forEach(b => b.classList.toggle('active', b === btn));
+      renderAdminCharts();
+    });
+  });
+
+  if (d3TrendChart) {
+    let resizeTimer: number | null = null;
+    window.addEventListener('resize', () => {
+      if (resizeTimer) window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        if (isAdminLoggedIn) renderAdminCharts();
+      }, 150);
+    });
+  }
 }
 
 // --- All-in-One 1, 2, 3 Grade Unified Matrix Table with Capacities & Attendance Rates ---
@@ -1865,6 +2563,7 @@ loadClassCounts();
 loadData();
 loadCapacities();
 loadHomeButtonConfig();
+initChartControls();
 updateClassChipsForGrade(1);
 updateSyncStatus(true, '클라우드 동기화 연결 중...');
 
