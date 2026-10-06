@@ -1743,19 +1743,19 @@ function renderUnifiedMatrixTable() {
   const grandRate = grandTotalCap > 0 ? (grandTotalStudents / grandTotalCap) * 100 : 0;
   trTotal.innerHTML = `
     <td style="white-space:nowrap; text-align:center;"><strong style="color:var(--green-700); font-size:0.92rem; font-weight:800;">전교 총합계</strong></td>
-    <td colspan="${maxCols + 1}" style="background:#eaf4ed; padding:10px 16px;">
-      <div style="display:flex; align-items:center; justify-content:space-evenly; flex-wrap:wrap; gap:12px 20px; text-align:center;">
-        <div style="display:inline-flex; align-items:center; gap:8px;">
+    <td colspan="${maxCols + 1}" style="background:#eaf4ed; padding:10px 16px; white-space:nowrap;">
+      <div style="display:flex; align-items:center; justify-content:space-evenly; flex-wrap:nowrap; gap:16px 24px; text-align:center; white-space:nowrap;">
+        <div style="display:inline-flex; align-items:center; gap:8px; white-space:nowrap;">
           <span style="color:var(--text-muted); font-size:0.88rem; font-weight:600;">전교 총 학부모 수:</span>
           <strong style="color:var(--green-700); font-size:1.02rem; font-weight:800;">${grandTotalParents.toLocaleString()}명</strong>
         </div>
         <span style="color:#bddbc8; font-weight:300;" class="total-metric-divider">|</span>
-        <div style="display:inline-flex; align-items:center; gap:8px;">
+        <div style="display:inline-flex; align-items:center; gap:8px; white-space:nowrap;">
           <span style="color:var(--text-muted); font-size:0.88rem; font-weight:600;">전교 학생 출석 / 정원:</span>
           <strong style="color:var(--green-700); font-size:0.96rem; font-weight:700;">${grandTotalStudents.toLocaleString()} / ${grandTotalCap.toLocaleString()}명</strong>
         </div>
         <span style="color:#bddbc8; font-weight:300;" class="total-metric-divider">|</span>
-        <div style="display:inline-flex; align-items:center; gap:8px;">
+        <div style="display:inline-flex; align-items:center; gap:8px; white-space:nowrap;">
           <span style="color:var(--text-muted); font-size:0.88rem; font-weight:600;">전교 종합 참석률:</span>
           <span class="rate-badge featured" style="font-size:0.92rem; padding:4px 18px; font-weight:800;">${grandRate.toFixed(1)}%</span>
         </div>
